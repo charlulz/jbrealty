@@ -23,15 +23,15 @@
                 <a href="/" class="flex items-center space-x-3">
                     <div class="flex-shrink-0">
                         <img 
-                            src="{{ asset('images/logo.jpg') }}" 
+                            src="{{ asset('images/logo.png') }}" 
                             alt="JB Land & Home Realty Logo" 
-                            class="w-12 h-12 rounded-lg object-cover shadow-lg ring-2 ring-secondary/20 hover:ring-secondary/40 transition-all duration-300"
+                            class="w-35 h-35 rounded-lg object-cover shadow-lg ring-2 ring-secondary/20 hover:ring-secondary/40 transition-all duration-300"
                         >
                     </div>
-                    <div class="hidden sm:block">
+                    {{-- <div class="hidden sm:block">
                         <h1 class="text-xl font-medium text-white font-sans">JB Land & Home</h1>
                         <p class="text-sm text-secondary -mt-0.5 font-light tracking-widest uppercase">Looking for ground?</p>
-                    </div>
+                    </div> --}}
                 </a>
             </div>
 

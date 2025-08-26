@@ -23,14 +23,6 @@
     
     <div class="relative max-w-7xl mx-auto px-6 lg:px-8 py-20 z-10">
         <div class="text-center text-white mb-16">
-            <!-- Refined Premium Badge -->
-            <div class="inline-flex items-center mb-12 opacity-0 fade-in-up">
-                <div class="h-px bg-gradient-to-r from-transparent via-secondary/40 to-transparent flex-1 max-w-16"></div>
-                <div class="mx-6 px-5 py-1.5 border border-secondary/20 rounded-full backdrop-blur-sm bg-black/10">
-                    <span class="text-secondary font-light text-xs tracking-[0.2em] uppercase">Premium Properties</span>
-                </div>
-                <div class="h-px bg-gradient-to-r from-transparent via-secondary/40 to-transparent flex-1 max-w-16"></div>
-            </div>
             
             <!-- Refined Main Headline with Mixed Typography -->
             <div class="mb-8 opacity-0 fade-in-up fade-in-up-delay-1">
@@ -42,28 +34,6 @@
                 </h1>
             </div>
             
-            <!-- Elegant Subtitle -->
-            <div class="max-w-4xl mx-auto mb-12 opacity-0 fade-in-up fade-in-up-delay-2">
-                <p class="text-lg md:text-xl text-white/90 font-light leading-relaxed mb-6 font-sans tracking-wide">
-                    Discover exceptional hunting land, farms, ranches, and rural properties across the region
-                </p>
-                
-                <!-- Refined Trust Indicators -->
-                <div class="flex flex-wrap items-center justify-center gap-x-12 gap-y-4 text-secondary/70 text-xs font-light tracking-widest uppercase">
-                    <span class="flex items-center">
-                        <div class="w-1 h-1 bg-secondary rounded-full mr-3"></div>
-                        Premium Listings
-                    </span>
-                    <span class="flex items-center">
-                        <div class="w-1 h-1 bg-secondary rounded-full mr-3"></div>
-                        Expert Guidance
-                    </span>
-                    <span class="flex items-center">
-                        <div class="w-1 h-1 bg-secondary rounded-full mr-3"></div>
-                        Proven Results
-                    </span>
-                </div>
-            </div>
         </div>
 
         <!-- Property Search - Livewire Component -->
@@ -109,7 +79,7 @@
                                     <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
                                 </svg>
                                 <span class="text-3xl lg:text-4xl font-serif text-secondary counter-animate" 
-                                      x-text="visible ? '25+' : '0'">25+</span>
+                                      x-text="visible ? '10+' : '0'">10+</span>
                             </div>
                             <div class="text-xs text-white/70 font-light tracking-widest uppercase">Years</div>
                         </div>
