@@ -6,6 +6,7 @@
         muted 
         loop 
         playsinline
+        preload="auto"
         class="absolute inset-0 w-full h-full object-cover"
     >
         <source src="{{ asset('videos/hero.mp4') }}" type="video/mp4">
