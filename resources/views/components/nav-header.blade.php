@@ -87,8 +87,8 @@
                         </div>
                     </div>
                 </div>
-                <a href="#" class="nav-link gold-sweep text-white/90 hover:text-white px-4 py-3 text-sm font-light tracking-wide transition-all duration-300">Agents</a>
-                <a href="#" class="nav-link gold-sweep text-white/90 hover:text-white px-4 py-3 text-sm font-light tracking-wide transition-all duration-300">About</a>
+                <a href="{{ route('agents') }}" class="nav-link gold-sweep text-white/90 hover:text-white px-4 py-3 text-sm font-light tracking-wide transition-all duration-300">Agents</a>
+                <a href="{{ route('about') }}" class="nav-link gold-sweep text-white/90 hover:text-white px-4 py-3 text-sm font-light tracking-wide transition-all duration-300">About</a>
                 <a href="#" class="nav-link gold-sweep text-white/90 hover:text-white px-4 py-3 text-sm font-light tracking-wide transition-all duration-300">Contact</a>
             </nav>
 
@@ -159,8 +159,8 @@
                     <a href="#" class="block py-1 text-sm text-gray-400 hover:text-secondary transition-colors duration-300">Land Auctions</a>
                 </div>
             </div>
-            <a href="#" class="block px-3 py-2 text-sm font-medium text-gray-300 hover:text-secondary transition-colors duration-300">Agents</a>
-            <a href="#" class="block px-3 py-2 text-sm font-medium text-gray-300 hover:text-secondary transition-colors duration-300">About</a>
+            <a href="{{ route('agents') }}" class="block px-3 py-2 text-sm font-medium text-gray-300 hover:text-secondary transition-colors duration-300">Agents</a>
+            <a href="{{ route('about') }}" class="block px-3 py-2 text-sm font-medium text-gray-300 hover:text-secondary transition-colors duration-300">About</a>
             <a href="#" class="block px-3 py-2 text-sm font-medium text-gray-300 hover:text-secondary transition-colors duration-300">Contact</a>
             
             <div class="pt-4 border-t border-secondary/20">
