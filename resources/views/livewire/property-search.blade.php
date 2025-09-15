@@ -302,7 +302,18 @@
                         
                         <!-- Property Card -->
                         <div class="relative bg-black/60 backdrop-blur-xl border border-secondary/20 rounded-2xl overflow-hidden hover:border-secondary/40 transition-all duration-300">
-                            <div class="h-64 bg-gradient-to-br from-green-500 to-green-700 relative overflow-hidden">
+                            <div class="h-64 relative overflow-hidden">
+                                @if($property['image'])
+                                    <img 
+                                        src="{{ $property['image'] }}" 
+                                        alt="{{ $property['title'] }} - Property Image" 
+                                        class="w-full h-full object-cover"
+                                        onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';"
+                                    >
+                                    <div class="w-full h-full bg-gradient-to-br from-green-500 to-green-700 hidden"></div>
+                                @else
+                                    <div class="w-full h-full bg-gradient-to-br from-green-500 to-green-700"></div>
+                                @endif
                                 <div class="absolute inset-0 bg-black/20"></div>
                                 <div class="absolute bottom-6 left-6 text-white">
                                     <h4 class="text-2xl font-bold mb-2">{{ $property['title'] }}</h4>
@@ -324,9 +335,9 @@
                                         <div class="text-sm text-gray-400 uppercase tracking-wide">Starting at</div>
                                     </div>
                                 </div>
-                                <button class="w-full bg-gradient-to-r from-secondary to-yellow-400 hover:from-yellow-400 hover:to-secondary text-black py-3 px-6 rounded-xl font-bold tracking-wide uppercase transition-all duration-300 transform hover:scale-105">
+                                <a href="{{ route('properties.show', $property['id']) }}" class="block w-full bg-gradient-to-r from-secondary to-yellow-400 hover:from-yellow-400 hover:to-secondary text-black py-3 px-6 rounded-xl font-bold tracking-wide uppercase transition-all duration-300 transform hover:scale-105 text-center">
                                     View Details
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>

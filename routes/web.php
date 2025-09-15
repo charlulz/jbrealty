@@ -4,7 +4,16 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
-    return view('welcome');
+    // Get first 3 properties that have images for featured section
+    $featuredProperties = \App\Models\Property::has('images')
+        ->with(['images' => function ($query) {
+            $query->orderBy('is_primary', 'desc')->orderBy('sort_order');
+        }])
+        ->orderBy('created_at', 'desc')
+        ->take(3)
+        ->get();
+    
+    return view('welcome', compact('featuredProperties'));
 })->name('home');
 
 Route::get('/agents', function () {
@@ -25,6 +34,29 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
+});
+
+// Property routes
+Route::get('/properties', [App\Http\Controllers\PropertyController::class, 'index'])->name('properties.index');
+Route::get('/properties/{property}', [App\Http\Controllers\PropertyController::class, 'show'])->name('properties.show');
+
+// Property inquiry routes
+Route::post('/properties/{property}/inquiry', [App\Http\Controllers\PropertyInquiryController::class, 'store'])->name('property-inquiry.store');
+
+// Protected property management routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/properties/create', [App\Http\Controllers\PropertyController::class, 'create'])->name('admin.properties.create');
+    Route::post('/admin/properties', [App\Http\Controllers\PropertyController::class, 'store'])->name('admin.properties.store');
+    Route::get('/admin/properties/{property}/edit', [App\Http\Controllers\PropertyController::class, 'edit'])->name('admin.properties.edit');
+    Route::put('/admin/properties/{property}', [App\Http\Controllers\PropertyController::class, 'update'])->name('admin.properties.update');
+    Route::delete('/admin/properties/{property}', [App\Http\Controllers\PropertyController::class, 'destroy'])->name('admin.properties.destroy');
+    
+    // Import routes
+    Route::get('/admin/import', [App\Http\Controllers\Admin\ImportController::class, 'index'])->name('admin.import.index');
+    Route::post('/admin/import/csv', [App\Http\Controllers\Admin\ImportController::class, 'uploadCsv'])->name('admin.import.csv');
+    Route::post('/admin/import/preview', [App\Http\Controllers\Admin\ImportController::class, 'previewCsv'])->name('admin.import.preview');
+    Route::post('/admin/import/scrape', [App\Http\Controllers\Admin\ImportController::class, 'scrapeUrl'])->name('admin.import.scrape');
+    Route::get('/admin/import/template/{type}', [App\Http\Controllers\Admin\ImportController::class, 'downloadTemplate'])->name('admin.import.template');
 });
 
 require __DIR__.'/auth.php';

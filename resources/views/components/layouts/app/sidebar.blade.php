@@ -15,6 +15,20 @@
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
                 </flux:navlist.group>
+
+                <flux:navlist.group :heading="__('Properties')" class="grid">
+                    <flux:navlist.item icon="building-office" :href="route('properties.index')" :current="request()->routeIs('properties.*')" wire:navigate>{{ __('Browse Properties') }}</flux:navlist.item>
+                    <flux:navlist.item icon="squares-plus" :href="route('admin.properties.create')" :current="request()->routeIs('admin.properties.create')" wire:navigate>{{ __('Add Property') }}</flux:navlist.item>
+                    <flux:navlist.item icon="arrow-up-tray" :href="route('admin.import.index')" :current="request()->routeIs('admin.import.*')" wire:navigate>{{ __('Import Properties') }}</flux:navlist.item>
+                    <flux:navlist.item icon="chat-bubble-bottom-center-text" href="#" wire:navigate>{{ __('Inquiries') }}</flux:navlist.item>
+                    <flux:navlist.item icon="chart-bar" href="#" wire:navigate>{{ __('Reports') }}</flux:navlist.item>
+                </flux:navlist.group>
+
+                <flux:navlist.group :heading="__('Public Site')" class="grid">
+                    <flux:navlist.item icon="globe-alt" :href="route('home')" wire:navigate>{{ __('Homepage') }}</flux:navlist.item>
+                    <flux:navlist.item icon="user-group" :href="route('agents')" wire:navigate>{{ __('Agents') }}</flux:navlist.item>
+                    <flux:navlist.item icon="information-circle" :href="route('about')" wire:navigate>{{ __('About') }}</flux:navlist.item>
+                </flux:navlist.group>
             </flux:navlist>
 
             <flux:spacer />
@@ -128,5 +142,6 @@
         {{ $slot }}
 
         @fluxScripts
+        @stack('scripts')
     </body>
 </html>

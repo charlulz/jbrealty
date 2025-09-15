@@ -49,206 +49,118 @@
             </div>
         </div>
 
-        <!-- Premium Property Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            <!-- Property Card 1 - Hunter's Paradise -->
-            <div class="group relative opacity-0 fade-in-up">
+        <!-- Dynamic Featured Properties Grid -->
+        @if($featuredProperties->count() > 0)
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                @foreach($featuredProperties as $index => $property)
+                    <!-- Property Card {{ $index + 1 }} - {{ $property->title }} -->
+                    <div class="group relative opacity-0 fade-in-up {{ $index == 0 ? '' : ($index == 1 ? 'fade-in-up-delay-1' : 'fade-in-up-delay-2') }}">
                 <!-- Subtle Gold Glow -->
                 <div class="absolute inset-0 bg-gradient-to-r from-secondary/10 via-secondary/20 to-secondary/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
                 
                 <!-- Main Card -->
                 <div class="relative bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden hover:border-secondary/30 transition-all duration-500 hover:transform hover:scale-105">
-                    <!-- Property Image -->
-                    <div class="h-80 relative overflow-hidden">
-                        <img 
-                            src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560&h=1440&auto=format&fit=crop&ixlib=rb-4.0.3" 
-                            alt="Hunter's Paradise - Hunting Land with Forest" 
-                            class="w-full h-full object-cover"
-                        >
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30"></div>
-                        
-                        <!-- Status Badge -->
-                        <div class="absolute top-6 left-6">
-                            <div class="px-4 py-1.5 bg-secondary/90 backdrop-blur-sm text-black rounded-full text-xs font-medium tracking-wide uppercase">
-                                New Listing
+                        <!-- Property Image -->
+                        <div class="h-80 relative overflow-hidden">
+                            @if($property->images->count() > 0)
+                                <img 
+                                    src="{{ $property->images->first()->url }}" 
+                                    alt="{{ $property->images->first()->alt_text ?? $property->title }}" 
+                                    class="w-full h-full object-cover"
+                                    loading="{{ $index == 0 ? 'eager' : 'lazy' }}"
+                                >
+                    @else
+                                <!-- Fallback gradient if no image -->
+                                <div class="w-full h-full bg-gradient-to-br from-green-600 via-green-700 to-green-800"></div>
+                            @endif
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30"></div>
+                            
+                            <!-- Status Badge -->
+                            <div class="absolute top-6 left-6">
+                                @if($property->created_at->diffInDays() <= 7)
+                                    <div class="px-4 py-1.5 bg-secondary/90 backdrop-blur-sm text-black rounded-full text-xs font-medium tracking-wide uppercase">
+                                        New Listing
+                                    </div>
+                                @elseif($property->featured)
+                                    <div class="px-4 py-1.5 bg-green-500/90 backdrop-blur-sm text-white rounded-full text-xs font-medium tracking-wide uppercase">
+                                        Featured
+                                    </div>
+                                @else
+                                    <div class="px-4 py-1.5 bg-blue-500/90 backdrop-blur-sm text-white rounded-full text-xs font-medium tracking-wide uppercase">
+                                        {{ ucfirst($property->property_type ?? 'Land') }}
+                                    </div>
+                        @endif
+                            </div>
+                            
+                            <!-- Property Title Overlay -->
+                            <div class="absolute bottom-6 left-6 right-6">
+                                <h3 class="text-2xl font-serif font-medium text-white mb-2 line-clamp-2">
+                                    {{ Str::limit($property->title, 40) }}
+                                </h3>
+                                <div class="flex items-center text-white/90 text-sm font-light">
+                                    <svg class="w-4 h-4 mr-2 opacity-60" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span>{{ $property->total_acres }}± acres • {{ $property->county ?? 'Kentucky' }}</span>
+                                </div>
                             </div>
                         </div>
-                        
-                        <!-- Property Title Overlay -->
-                        <div class="absolute bottom-6 left-6 right-6">
-                            <h3 class="text-2xl font-serif font-medium text-white mb-2">Hunter's Paradise</h3>
-                            <div class="flex items-center text-white/90 text-sm font-light">
-                                <svg class="w-4 h-4 mr-2 opacity-60" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
-                                </svg>
-                                <span>124 acres • Eastern Kentucky</span>
-                            </div>
-                        </div>
-                    </div>
                     
-                    <!-- Card Content -->
-                    <div class="p-8">
-                        <!-- Price & Acreage -->
-                        <div class="flex justify-between items-center mb-6">
-                            <span class="text-3xl font-serif text-secondary">$249,900</span>
-                            <div class="text-right">
-                                <div class="text-white/60 text-xs uppercase tracking-wide font-light">Starting at</div>
-                                <div class="text-white/80 font-medium">124± Acres</div>
+                        <!-- Card Content -->
+                        <div class="p-8">
+                            <!-- Price & Acreage -->
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="text-3xl font-serif text-secondary">{{ $property->formatted_price }}</span>
+                                <div class="text-right">
+                                    <div class="text-white/60 text-xs uppercase tracking-wide font-light">Starting at</div>
+                                    <div class="text-white/80 font-medium">{{ $property->total_acres }}± Acres</div>
+                                </div>
                             </div>
+                            
+                            <!-- Description -->
+                            <p class="text-white/70 font-light leading-relaxed mb-8 text-sm line-clamp-3">
+                                {{ Str::limit($property->description, 150) }}
+                            </p>
+                            
+                            <!-- Premium CTA Button -->
+                            <a href="{{ route('properties.show', $property) }}" class="group/btn block w-full bg-black/30 hover:bg-secondary border border-white/20 hover:border-secondary text-white hover:text-black py-4 px-6 rounded-2xl font-medium tracking-wide transition-all duration-300 backdrop-blur-sm text-center">
+                                <span class="flex items-center justify-center">
+                                    <span>View Details</span>
+                                    <svg class="w-4 h-4 ml-2 transform group-hover/btn:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                    </svg>
+                                </span>
+                            </a>
                         </div>
-                        
-                        <!-- Description -->
-                        <p class="text-white/70 font-light leading-relaxed mb-8 text-sm">
-                            Prime hunting land with mature timber, multiple food plots, and excellent deer population. 
-                            Features include cabin, pond, and ATV trails throughout.
-                        </p>
-                        
-                        <!-- Premium CTA Button -->
-                        <button class="group/btn w-full bg-black/30 hover:bg-secondary border border-white/20 hover:border-secondary text-white hover:text-black py-4 px-6 rounded-2xl font-medium tracking-wide transition-all duration-300 backdrop-blur-sm">
-                            <span class="flex items-center justify-center">
-                                <span>View Details</span>
-                                <svg class="w-4 h-4 ml-2 transform group-hover/btn:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
-                            </span>
-                        </button>
                     </div>
                 </div>
+                @endforeach
             </div>
+        @else
+            <!-- No Properties with Images -->
+            <div class="text-center py-12">
+                <div class="max-w-md mx-auto">
+                    <div class="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-serif text-white mb-2">Featured Properties Coming Soon</h3>
+                    <p class="text-white/70 text-sm">We're currently preparing our featured properties with professional photography.</p>
+                </div>
+            </div>
+        @endif
 
-            <!-- Property Card 2 - Historic Farm -->
-            <div class="group relative opacity-0 fade-in-up fade-in-up-delay-1">
-                <!-- Subtle Gold Glow -->
-                <div class="absolute inset-0 bg-gradient-to-r from-secondary/10 via-secondary/20 to-secondary/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
-                
-                <!-- Main Card -->
-                <div class="relative bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden hover:border-secondary/30 transition-all duration-500 hover:transform hover:scale-105">
-                    <!-- Property Image -->
-                    <div class="h-80 relative overflow-hidden">
-                        <img 
-                            src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2560&h=1440&auto=format&fit=crop&ixlib=rb-4.0.3" 
-                            alt="Historic Farm - Rolling Pastures and Farmland" 
-                            class="w-full h-full object-cover"
-                        >
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30"></div>
-                        
-                        <!-- Status Badge -->
-                        <div class="absolute top-6 left-6">
-                            <div class="px-4 py-1.5 bg-red-500/90 backdrop-blur-sm text-white rounded-full text-xs font-medium tracking-wide uppercase">
-                                Price Reduced
-                            </div>
-                        </div>
-                        
-                        <!-- Property Title Overlay -->
-                        <div class="absolute bottom-6 left-6 right-6">
-                            <h3 class="text-2xl font-serif font-medium text-white mb-2">Historic Farm</h3>
-                            <div class="flex items-center text-white/90 text-sm font-light">
-                                <svg class="w-4 h-4 mr-2 opacity-60" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
-                                </svg>
-                                <span>89 acres • Eastern Kentucky</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Card Content -->
-                    <div class="p-8">
-                        <!-- Price & Acreage -->
-                        <div class="flex justify-between items-center mb-6">
-                            <span class="text-3xl font-serif text-secondary">$425,000</span>
-                            <div class="text-right">
-                                <div class="text-white/60 text-xs uppercase tracking-wide font-light">Starting at</div>
-                                <div class="text-white/80 font-medium">89± Acres</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Description -->
-                        <p class="text-white/70 font-light leading-relaxed mb-8 text-sm">
-                            Beautiful historic farmhouse on rolling pastures with mountain views. 
-                            Perfect for horses, cattle, or recreational use. Includes barn and outbuildings.
-                        </p>
-                        
-                        <!-- Premium CTA Button -->
-                        <button class="group/btn w-full bg-black/30 hover:bg-secondary border border-white/20 hover:border-secondary text-white hover:text-black py-4 px-6 rounded-2xl font-medium tracking-wide transition-all duration-300 backdrop-blur-sm">
-                            <span class="flex items-center justify-center">
-                                <span>View Details</span>
-                                <svg class="w-4 h-4 ml-2 transform group-hover/btn:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Property Card 3 - Waterfront Estate -->
-            <div class="group relative opacity-0 fade-in-up fade-in-up-delay-2">
-                <!-- Subtle Gold Glow -->
-                <div class="absolute inset-0 bg-gradient-to-r from-secondary/10 via-secondary/20 to-secondary/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
-                
-                <!-- Main Card -->
-                <div class="relative bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden hover:border-secondary/30 transition-all duration-500 hover:transform hover:scale-105">
-                    <!-- Property Image -->
-                    <div class="h-80 relative overflow-hidden">
-                        <img 
-                            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2560&h=1440&auto=format&fit=crop&ixlib=rb-4.0.3" 
-                            alt="Waterfront Estate - Lake Property with Dock" 
-                            class="w-full h-full object-cover"
-                        >
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30"></div>
-                        
-                        <!-- Property Title Overlay -->
-                        <div class="absolute bottom-6 left-6 right-6">
-                            <h3 class="text-2xl font-serif font-medium text-white mb-2">Waterfront Estate</h3>
-                            <div class="flex items-center text-white/90 text-sm font-light">
-                                <svg class="w-4 h-4 mr-2 opacity-60" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
-                                </svg>
-                                <span>45 acres • Eastern Kentucky</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Card Content -->
-                    <div class="p-8">
-                        <!-- Price & Acreage -->
-                        <div class="flex justify-between items-center mb-6">
-                            <span class="text-3xl font-serif text-secondary">$875,000</span>
-                            <div class="text-right">
-                                <div class="text-white/60 text-xs uppercase tracking-wide font-light">Starting at</div>
-                                <div class="text-white/80 font-medium">45± Acres</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Description -->
-                        <p class="text-white/70 font-light leading-relaxed mb-8 text-sm">
-                            Stunning waterfront property with 1,200 feet of river frontage. 
-                            Custom home, private dock, and pristine natural setting perfect for fishing and boating.
-                        </p>
-                        
-                        <!-- Premium CTA Button -->
-                        <button class="group/btn w-full bg-black/30 hover:bg-secondary border border-white/20 hover:border-secondary text-white hover:text-black py-4 px-6 rounded-2xl font-medium tracking-wide transition-all duration-300 backdrop-blur-sm">
-                            <span class="flex items-center justify-center">
-                                <span>View Details</span>
-                                <svg class="w-4 h-4 ml-2 transform group-hover/btn:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Premium View All CTA -->
         <div class="text-center mt-16 opacity-0 fade-in-up fade-in-up-delay-3">
-            <a href="#" class="group inline-flex items-center btn-premium text-black px-10 py-4 rounded-2xl font-medium text-base tracking-wide transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-secondary/30">
+            <a href="{{ route('properties.index') }}" class="group inline-flex items-center btn-premium text-black px-10 py-4 rounded-2xl font-medium text-base tracking-wide transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-secondary/30">
                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform translate-x-full group-hover:translate-x-0 transition-transform duration-700"></div>
                 <div class="relative flex items-center">
                     <span>View All Properties</span>
                     <svg class="ml-3 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
+                                    </svg>
                 </div>
             </a>
         </div>
