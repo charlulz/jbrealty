@@ -439,7 +439,7 @@
             </div>
             <p class="text-white/80 text-lg font-light mb-2">Call Jeremiah directly</p>
             <p class="text-secondary text-xl font-light">
-                <a href="tel:+16065551234" class="hover:text-secondary/80 transition-colors duration-300 underline decoration-secondary/30 hover:decoration-secondary/60">(606) 555-1234</a>
+                <a href="tel:+18594732259" class="hover:text-secondary/80 transition-colors duration-300 underline decoration-secondary/30 hover:decoration-secondary/60">859.473.2259</a>
             </p>
         </div>
     </div>

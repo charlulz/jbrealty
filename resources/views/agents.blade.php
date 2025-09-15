@@ -149,7 +149,7 @@
                                 <svg class="w-4 h-4 mr-2 opacity-60" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M2 3.5A1.5 1.5 0 013.5 2h1.148a1.5 1.5 0 011.465 1.175l.716 3.223a1.5 1.5 0 01-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 006.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 011.767-1.052l3.223.716A1.5 1.5 0 0118 15.352V16.5a1.5 1.5 0 01-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 012 3.5z" clip-rule="evenodd" />
                                     </svg>
-                                    <span>859-473-2259</span>
+                                    <span>859.473.2259</span>
                         </div>
                             </div>
                         </div>
@@ -182,7 +182,7 @@
                         
                         <!-- Contact Buttons -->
                         <div class="flex gap-4">
-                            <a href="tel:859-473-2259" class="group/btn flex-1 bg-black/30 hover:bg-secondary border border-white/20 hover:border-secondary text-white hover:text-black py-3 px-6 rounded-2xl font-medium text-sm tracking-wide transition-all duration-300 backdrop-blur-sm">
+                            <a href="tel:+18594732259" class="group/btn flex-1 bg-black/30 hover:bg-secondary border border-white/20 hover:border-secondary text-white hover:text-black py-3 px-6 rounded-2xl font-medium text-sm tracking-wide transition-all duration-300 backdrop-blur-sm">
                                 <span class="flex items-center justify-center">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
@@ -278,7 +278,7 @@
             </div>
             <p class="text-white/80 text-lg font-light mb-2">Or call Jeremiah directly</p>
             <p class="text-secondary text-xl font-light">
-                <a href="tel:8594732259" class="hover:text-secondary/80 transition-colors duration-300 underline decoration-secondary/30 hover:decoration-secondary/60">(859) 473-2259</a>
+                <a href="tel:+18594732259" class="hover:text-secondary/80 transition-colors duration-300 underline decoration-secondary/30 hover:decoration-secondary/60">859.473.2259</a>
             </p>
         </div>
     </div>

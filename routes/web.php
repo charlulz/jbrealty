@@ -24,6 +24,19 @@ Route::get('/about', function () {
     return view('about');
 })->name('about');
 
+// Legal pages
+Route::get('/privacy-policy', function () {
+    return view('legal.privacy-policy');
+})->name('privacy-policy');
+
+Route::get('/terms-of-service', function () {
+    return view('legal.terms-of-service');
+})->name('terms-of-service');
+
+Route::get('/cookie-policy', function () {
+    return view('legal.cookie-policy');
+})->name('cookie-policy');
+
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');

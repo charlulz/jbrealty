@@ -450,8 +450,8 @@
                                 <div>
                                     <h3 class="text-white font-medium text-lg mb-2">Call Us</h3>
                                     <p class="text-white/70 text-sm mb-3">Speak directly with our land specialists</p>
-                                    <a href="tel:+16065551234" class="text-secondary hover:text-secondary/80 font-medium text-lg tracking-wide transition-colors duration-300">
-                                        (606) 555-1234
+                                    <a href="tel:+18594732259" class="text-secondary hover:text-secondary/80 font-medium text-lg tracking-wide transition-colors duration-300">
+                                        859.473.2259
                                     </a>
                                 </div>
                             </div>
@@ -506,8 +506,8 @@
                                     <h3 class="text-white font-medium text-lg mb-2">Visit Our Office</h3>
                                     <p class="text-white/70 text-sm mb-3">Serving Eastern Kentucky</p>
                                     <div class="text-secondary font-medium text-lg tracking-wide">
-                                        <div>123 Main Street</div>
-                                        <div>Carlisle, KY 40311</div>
+                                        <div>4629 Maysville Road</div>
+                                        <div>Carlisle, KY, United States, 40311</div>
                                     </div>
                                 </div>
                             </div>
@@ -604,7 +604,7 @@
                                     type="tel" 
                                     name="phone"
                                     class="w-full bg-black/30 border border-white/10 rounded-2xl px-5 py-4 text-white/90 placeholder-white/40 focus:border-secondary/50 focus:ring-2 focus:ring-secondary/20 focus:outline-none transition-all duration-300"
-                                    placeholder="(606) 555-0000"
+                                    placeholder="859.473.2259"
                                 >
                             </div>
                             <div>
@@ -682,7 +682,7 @@
                 <div class="h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent w-full max-w-sm"></div>
             </div>
             <p class="text-white/80 text-lg font-light mb-2">Prefer to talk in person?</p>
-            <p class="text-secondary text-base font-light">Call us at <a href="tel:+16065551234" class="hover:text-secondary/80 transition-colors duration-300 underline decoration-secondary/30 hover:decoration-secondary/60">(606) 555-1234</a> for immediate assistance.</p>
+            <p class="text-secondary text-base font-light">Call us at <a href="tel:+18594732259" class="hover:text-secondary/80 transition-colors duration-300 underline decoration-secondary/30 hover:decoration-secondary/60">859.473.2259</a> for immediate assistance.</p>
         </div>
     </div>
 </section>
