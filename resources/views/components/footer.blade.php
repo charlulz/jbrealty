@@ -153,9 +153,9 @@
 
                             <!-- Legal Links -->
                             <div class="flex items-center space-x-8 text-sm">
-                                <a href="#" class="text-white/60 hover:text-secondary font-light transition-colors duration-300">Privacy Policy</a>
-                                <a href="#" class="text-white/60 hover:text-secondary font-light transition-colors duration-300">Terms of Service</a>
-                                <a href="#" class="text-white/60 hover:text-secondary font-light transition-colors duration-300">Cookie Policy</a>
+                                <a href="{{ route('privacy-policy') }}" class="text-white/60 hover:text-secondary font-light transition-colors duration-300">Privacy Policy</a>
+                                <a href="{{ route('terms-of-service') }}" class="text-white/60 hover:text-secondary font-light transition-colors duration-300">Terms of Service</a>
+                                <a href="{{ route('cookie-policy') }}" class="text-white/60 hover:text-secondary font-light transition-colors duration-300">Cookie Policy</a>
                             </div>
 
             <!-- License Info -->

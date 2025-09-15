@@ -2,19 +2,23 @@
     'latitude' => null,
     'longitude' => null,
     'editable' => false,
-    'height' => '400px',
+    'height' => null,
     'title' => 'Property Location'
 ])
 
 @php
     $mapId = 'property-map-' . uniqid();
+    // Responsive height: mobile = 300px, tablet = 350px, desktop = 400px
+    $responsiveHeight = $height ?? 'height: 300px; min-height: 300px;';
 @endphp
 
 <div class="property-map-container">
     <div 
         id="{{ $mapId }}" 
-        class="property-map rounded-lg border border-gray-200 dark:border-gray-700" 
-        style="height: {{ $height }};"
+        class="property-map rounded-3xl border border-white/10 bg-black/20 backdrop-blur-2xl overflow-hidden" 
+        style="{{ $responsiveHeight }} 
+               @media (min-width: 768px) { height: 350px; }
+               @media (min-width: 1024px) { height: 400px; }"
         data-latitude="{{ $latitude ?: 38.0293 }}" 
         data-longitude="{{ $longitude ?: -78.4767 }}" 
         data-editable="{{ $editable ? 'true' : 'false' }}"
@@ -22,23 +26,137 @@
     ></div>
     
     @if($editable)
-        <div class="text-sm text-gray-600 dark:text-gray-400 mt-2 space-y-2">
-            <p class="flex items-center">
-                <svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="mt-4 p-4 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl">
+            <h4 class="text-white font-medium mb-3 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <strong>Auto-Location:</strong> Enter address details above and the map will automatically update with coordinates.
-            </p>
-            <p class="flex items-center">
-                <svg class="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                Map Instructions
+            </h4>
+            <div class="space-y-3 text-sm text-white/80">
+                <div class="flex items-start">
+                    <div class="w-2 h-2 bg-secondary rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <div>
+                        <strong class="text-secondary">Auto-Location:</strong> Enter address details above and the map will automatically update with coordinates.
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="w-2 h-2 bg-secondary rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <div>
+                        <strong class="text-secondary">Manual:</strong> Tap anywhere on the map or enter latitude/longitude coordinates manually.
+                    </div>
+                </div>
+            </div>
+        </div>
+    @else
+        <!-- Map Legend for Public View -->
+        <div class="mt-4 flex items-center justify-between bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl p-4">
+            <div class="flex items-center text-white/80 text-sm">
+                <svg class="w-4 h-4 mr-2 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <strong>Manual:</strong> Click anywhere on the map or enter latitude/longitude coordinates manually.
-            </p>
+                <span>{{ $title }}</span>
+            </div>
+            <div class="text-xs text-white/60">
+                Tap and drag to explore
+            </div>
         </div>
     @endif
 </div>
+
+@push('styles')
+<style>
+/* Mobile-Optimized Map Styles */
+.property-map {
+    /* Responsive height using CSS Grid */
+    height: 300px;
+    transition: all 0.3s ease;
+}
+
+@media (min-width: 640px) {
+    .property-map {
+        height: 350px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .property-map {
+        height: 400px;
+    }
+}
+
+/* Custom Leaflet Control Styling for Premium Theme */
+.leaflet-control-zoom a {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    backdrop-filter: blur(12px);
+    border-radius: 12px !important;
+    width: 40px !important;
+    height: 40px !important;
+    line-height: 38px !important;
+    margin: 2px !important;
+    transition: all 0.3s ease !important;
+}
+
+.leaflet-control-zoom a:hover {
+    background-color: #fcce00 !important;
+    color: black !important;
+    border-color: #fcce00 !important;
+    transform: scale(1.05);
+}
+
+.leaflet-popup-content-wrapper {
+    background: rgba(0, 0, 0, 0.9) !important;
+    border: 1px solid rgba(252, 206, 0, 0.3) !important;
+    border-radius: 16px !important;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.leaflet-popup-content {
+    color: white !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    margin: 16px !important;
+}
+
+.leaflet-popup-tip {
+    background: rgba(0, 0, 0, 0.9) !important;
+    border: 1px solid rgba(252, 206, 0, 0.3) !important;
+}
+
+.leaflet-control-attribution {
+    background: rgba(0, 0, 0, 0.7) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    border-radius: 8px !important;
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    backdrop-filter: blur(8px);
+}
+
+/* Mobile touch improvements */
+@media (max-width: 640px) {
+    .leaflet-control-zoom a {
+        width: 44px !important;
+        height: 44px !important;
+        line-height: 42px !important;
+        font-size: 18px !important;
+    }
+    
+    .leaflet-popup-content-wrapper {
+        max-width: 280px !important;
+    }
+    
+    .leaflet-popup-content {
+        font-size: 13px !important;
+        margin: 12px !important;
+    }
+}
+</style>
+@endpush
 
 @push('scripts')
 <script>
@@ -47,6 +165,21 @@ document.addEventListener('DOMContentLoaded', function() {
     function initMap() {
         if (typeof L === 'undefined') {
             console.error('Leaflet library not loaded. Please check that Leaflet JS is included.');
+            
+            // Show error message in map container
+            const mapElement = document.getElementById('{{ $mapId }}');
+            if (mapElement) {
+                mapElement.innerHTML = `
+                    <div class="flex items-center justify-center h-full text-white/60 text-center p-6">
+                        <div>
+                            <svg class="w-12 h-12 mx-auto mb-4 text-secondary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                            </svg>
+                            <p class="text-sm">Map temporarily unavailable</p>
+                        </div>
+                    </div>
+                `;
+            }
             return;
         }
         
@@ -66,10 +199,30 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Map coordinates:', { latitude, longitude, editable });
             
-            // Initialize map with error handling
-            const map = L.map(mapElement.id).setView([latitude, longitude], 
+            // Mobile-optimized map options
+            const mapOptions = {
+                zoomControl: true,
+                scrollWheelZoom: !editable, // Disable scroll zoom on mobile for better UX
+                touchZoom: true,
+                doubleClickZoom: true,
+                boxZoom: false,
+                keyboard: true,
+                dragging: true,
+                tap: true,
+                tapTolerance: 15, // Increased tolerance for mobile
+                zoomSnap: 1,
+                zoomDelta: 1,
+                wheelDeblounceTime: 40,
+                wheelPxPerZoomLevel: 60
+            };
+            
+            // Initialize map with mobile-friendly settings
+            const map = L.map(mapElement.id, mapOptions).setView([latitude, longitude], 
                 (latitude === 38.4022 && longitude === -82.9593) ? 10 : 15
             );
+            
+            // Position zoom controls for mobile
+            map.zoomControl.setPosition('topright');
             
             // Add OpenStreetMap tiles with error handling
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -78,12 +231,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
             }).addTo(map);
             
+            // Custom marker icon for better visibility
+            const customIcon = L.divIcon({
+                html: `
+                    <div class="flex items-center justify-center w-8 h-8 bg-secondary rounded-full border-2 border-white shadow-lg">
+                        <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                `,
+                className: 'custom-marker',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32]
+            });
+            
             // Add marker if we have specific coordinates
             let marker;
             if (latitude && longitude && !(latitude === 38.4022 && longitude === -82.9593)) {
-                marker = L.marker([latitude, longitude])
+                marker = L.marker([latitude, longitude], { icon: customIcon })
                     .addTo(map)
-                    .bindPopup(title)
+                    .bindPopup(`
+                        <div class="text-center">
+                            <div class="font-medium text-secondary mb-2">${title}</div>
+                            <div class="text-sm opacity-80">
+                                ${latitude.toFixed(6)}, ${longitude.toFixed(6)}
+                            </div>
+                        </div>
+                    `)
                     .openPopup();
             }
             
@@ -101,9 +276,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     
                     // Add new marker
-                    marker = L.marker([lat, lng])
+                    marker = L.marker([lat, lng], { icon: customIcon })
                         .addTo(map)
-                        .bindPopup('Property Location<br>Lat: ' + lat.toFixed(6) + '<br>Lng: ' + lng.toFixed(6))
+                        .bindPopup(`
+                            <div class="text-center">
+                                <div class="font-medium text-secondary mb-2">Property Location</div>
+                                <div class="text-sm opacity-80">
+                                    Lat: ${lat.toFixed(6)}<br>
+                                    Lng: ${lng.toFixed(6)}
+                                </div>
+                            </div>
+                        `)
                         .openPopup();
                     
                     // Update form fields
@@ -144,9 +327,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         
                         // Add new marker and center map
-                        marker = L.marker([lat, lng])
+                        marker = L.marker([lat, lng], { icon: customIcon })
                             .addTo(map)
-                            .bindPopup('Property Location<br>Lat: ' + lat.toFixed(6) + '<br>Lng: ' + lng.toFixed(6));
+                            .bindPopup(`
+                                <div class="text-center">
+                                    <div class="font-medium text-secondary mb-2">Property Location</div>
+                                    <div class="text-sm opacity-80">
+                                        Lat: ${lat.toFixed(6)}<br>
+                                        Lng: ${lng.toFixed(6)}
+                                    </div>
+                                </div>
+                            `);
                         
                         map.setView([lat, lng], 15);
                     }
@@ -160,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Address Geocoding Functionality
+            // Address Geocoding Functionality (same as before but with status styling)
             const addressFields = {
                 street: document.querySelector('input[name="street_address"]'),
                 city: document.querySelector('input[name="city"]'),
@@ -183,7 +374,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 if (addressFields.state && addressFields.state.value) {
-                    // Get state text, not value
                     const selectedOption = addressFields.state.selectedOptions[0];
                     if (selectedOption && selectedOption.text !== 'Select State') {
                         addressParts.push(selectedOption.text);
@@ -194,7 +384,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     addressParts.push(addressFields.zip.value.trim());
                 }
                 
-                // Need at least city for geocoding
                 if (!addressFields.city || !addressFields.city.value.trim()) {
                     return;
                 }
@@ -203,7 +392,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Geocoding address:', address);
                 
                 try {
-                    // Use OpenStreetMap Nominatim (free, no API key required)
                     const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=${encodeURIComponent(address)}`);
                     
                     if (!response.ok) {
@@ -219,34 +407,34 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         console.log('Geocoding successful:', { lat, lng, display_name: result.display_name });
                         
-                        // Update coordinate fields
                         const latInput = document.querySelector('input[name="latitude"]');
                         const lngInput = document.querySelector('input[name="longitude"]');
                         
                         if (latInput && lngInput) {
                             latInput.value = lat.toFixed(6);
                             lngInput.value = lng.toFixed(6);
-                            
-                            // Trigger input events
                             latInput.dispatchEvent(new Event('input', { bubbles: true }));
                             lngInput.dispatchEvent(new Event('input', { bubbles: true }));
                         }
                         
-                        // Remove existing marker
                         if (marker) {
                             map.removeLayer(marker);
                         }
                         
-                        // Add new marker and center map
-                        marker = L.marker([lat, lng])
+                        marker = L.marker([lat, lng], { icon: customIcon })
                             .addTo(map)
-                            .bindPopup(`${result.display_name}<br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`)
+                            .bindPopup(`
+                                <div class="text-center">
+                                    <div class="font-medium text-secondary mb-2">${result.display_name.split(',')[0]}</div>
+                                    <div class="text-sm opacity-80">
+                                        Lat: ${lat.toFixed(6)}<br>
+                                        Lng: ${lng.toFixed(6)}
+                                    </div>
+                                </div>
+                            `)
                             .openPopup();
                         
-                        // Center map on location
                         map.setView([lat, lng], 15);
-                        
-                        // Show success feedback
                         showAddressStatus('✓ Location found and map updated', 'success');
                         
                     } else {
@@ -261,25 +449,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             function showAddressStatus(message, type) {
-                // Remove existing status
                 const existingStatus = document.querySelector('.address-geocode-status');
                 if (existingStatus) {
                     existingStatus.remove();
                 }
                 
-                // Create status element
                 const statusEl = document.createElement('div');
-                statusEl.className = `address-geocode-status mt-2 p-2 rounded-md text-sm ${
-                    type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
-                    type === 'warning' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
-                    'bg-red-100 text-red-800 border border-red-200'
+                statusEl.className = `address-geocode-status mt-3 p-3 rounded-2xl text-sm border backdrop-blur-2xl ${
+                    type === 'success' ? 'bg-green-500/20 text-green-200 border-green-500/30' :
+                    type === 'warning' ? 'bg-yellow-500/20 text-yellow-200 border-yellow-500/30' :
+                    'bg-red-500/20 text-red-200 border-red-500/30'
                 }`;
                 statusEl.textContent = message;
                 
-                // Add after map element
                 mapElement.parentNode.appendChild(statusEl);
                 
-                // Auto-remove after 5 seconds
                 setTimeout(() => {
                     if (statusEl.parentNode) {
                         statusEl.remove();
@@ -289,10 +473,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             function debouncedGeocode() {
                 clearTimeout(geocodeTimeout);
-                geocodeTimeout = setTimeout(geocodeAddress, 1000); // Wait 1 second after user stops typing
+                geocodeTimeout = setTimeout(geocodeAddress, 1000);
             }
             
-            // Add event listeners to address fields
             if (editable) {
                 Object.values(addressFields).forEach(field => {
                     if (field) {
@@ -304,20 +487,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Address geocoding enabled');
             }
             
-            // Trigger a resize after a short delay to ensure proper rendering
+            // Mobile-specific map enhancements
+            map.on('zoomend', function() {
+                // Ensure minimum zoom for mobile usability
+                if (map.getZoom() < 8) {
+                    map.setZoom(8);
+                }
+            });
+            
+            // Trigger resize after initialization
             setTimeout(function() {
                 map.invalidateSize();
-            }, 100);
+            }, 250);
             
-            console.log('Map initialized successfully');
+            // Handle orientation changes on mobile
+            window.addEventListener('orientationchange', function() {
+                setTimeout(function() {
+                    map.invalidateSize();
+                }, 500);
+            });
+            
+            console.log('Map initialized successfully with mobile optimizations');
             
         } catch (error) {
             console.error('Error initializing map:', error);
+            
+            // Show fallback content
+            const mapElement = document.getElementById('{{ $mapId }}');
+            if (mapElement) {
+                mapElement.innerHTML = `
+                    <div class="flex items-center justify-center h-full text-white/60 text-center p-6">
+                        <div>
+                            <svg class="w-12 h-12 mx-auto mb-4 text-secondary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <p class="text-sm">Unable to load map</p>
+                            <p class="text-xs mt-2 opacity-60">Please refresh the page</p>
+                        </div>
+                    </div>
+                `;
+            }
         }
     }
     
-    // Initialize the map with a small delay to ensure DOM is ready
-    setTimeout(initMap, 100);
+    // Initialize the map with appropriate delay for mobile
+    setTimeout(initMap, 150);
 });
 </script>
 @endpush
