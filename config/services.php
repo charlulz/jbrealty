@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'gohighlevel' => [
+        'api_token' => env('GHL_API_TOKEN'),
+        'location_id' => env('GHL_LOCATION_ID', '7YwBmZCIpKXv2NPxltud'),
+        'base_url' => env('GHL_BASE_URL', 'https://rest.gohighlevel.com/v1'),
+    ],
+
 ];

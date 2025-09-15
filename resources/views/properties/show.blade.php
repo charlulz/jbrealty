@@ -225,6 +225,9 @@
                 <!-- Mortgage Calculator -->
                 <x-mortgage-calculator :property="$property" />
 
+                <!-- Property Packet Request Form -->
+                <x-property-packet-form :property="$property" />
+
                 <!-- Appointment Booking -->
                 <x-property-booking :property="$property" id="schedule-tour" />
             </div>
@@ -259,6 +262,35 @@
                             </svg>
                             Send Email Inquiry
                         </a>
+                    </div>
+                </div>
+
+                <!-- Property Packet Request -->
+                <div class="relative bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl p-6">
+                    <div class="text-center mb-4">
+                        <div class="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-serif font-medium text-secondary text-lg mb-2">Get Property Packet</h3>
+                        <p class="text-white/70 text-sm">Instant delivery with photos, pricing, GPS & agent info</p>
+                    </div>
+                    
+                    <div x-data="{ showPacketForm: false }">
+                        <button @click="showPacketForm = !showPacketForm" class="w-full bg-secondary hover:bg-secondary/90 text-black py-3 px-6 rounded-2xl font-medium text-center transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-secondary/30 flex items-center justify-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <span x-text="showPacketForm ? 'Hide Form' : 'Get Free Packet'"></span>
+                        </button>
+                        
+                        <!-- Compact Packet Form -->
+                        <div x-show="showPacketForm" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 max-h-0" x-transition:enter-end="opacity-100 max-h-screen" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 max-h-screen" x-transition:leave-end="opacity-0 max-h-0" class="mt-4 overflow-hidden">
+                            <div class="bg-black/60 rounded-2xl p-4 border border-white/20">
+                                <x-property-packet-form :property="$property" compact="true" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
