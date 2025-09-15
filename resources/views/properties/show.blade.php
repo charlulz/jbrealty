@@ -74,9 +74,9 @@
     <div class="max-w-7xl mx-auto px-6 lg:px-8">
         <div class="grid gap-12 lg:grid-cols-3">
             <!-- Main Content -->
-            <div class="lg:col-span-2 space-y-8">
+            <div class="w-full max-w-full lg:col-span-2 space-y-8 min-w-0">
                 <!-- Property Gallery -->
-                <div class="relative bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden">
+                <div class="relative w-full max-w-full bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden">
                     <x-property-gallery :property="$property" />
                 </div>
 
@@ -175,25 +175,24 @@
 
                 <!-- Property Location Map -->
                 @if($property->latitude && $property->longitude)
-                    <div class="relative bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl p-8">
-                        <h2 class="text-2xl font-serif font-medium text-white mb-6 border-b border-secondary/20 pb-4">Property Location</h2>
-                        <div class="rounded-2xl overflow-hidden border border-white/20">
+                    <div class="relative w-full max-w-full bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 sm:p-6 lg:p-8">
+                        <h2 class="text-xl sm:text-2xl font-serif font-medium text-white mb-4 sm:mb-6 border-b border-secondary/20 pb-4">Property Location</h2>
+                        <div class="w-full max-w-full rounded-2xl overflow-hidden border border-white/20">
                             <x-property-map 
                                 :latitude="$property->latitude" 
                                 :longitude="$property->longitude" 
                                 :editable="false"
-                                height="400px"
                                 :title="$property->title"
                             />
                         </div>
-                        <div class="mt-6 grid md:grid-cols-2 gap-6">
+                        <div class="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
                             <div class="flex justify-between items-center py-2 border-b border-white/10">
-                                <span class="text-white/70">Latitude:</span>
-                                <span class="text-white font-medium">{{ number_format($property->latitude, 6) }}</span>
+                                <span class="text-white/70 text-sm sm:text-base">Latitude:</span>
+                                <span class="text-white font-medium text-sm sm:text-base font-mono">{{ number_format($property->latitude, 6) }}</span>
                             </div>
                             <div class="flex justify-between items-center py-2 border-b border-white/10">
-                                <span class="text-white/70">Longitude:</span>
-                                <span class="text-white font-medium">{{ number_format($property->longitude, 6) }}</span>
+                                <span class="text-white/70 text-sm sm:text-base">Longitude:</span>
+                                <span class="text-white font-medium text-sm sm:text-base font-mono">{{ number_format($property->longitude, 6) }}</span>
                             </div>
                         </div>
                     </div>

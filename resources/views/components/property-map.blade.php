@@ -8,17 +8,15 @@
 
 @php
     $mapId = 'property-map-' . uniqid();
-    // Responsive height: mobile = 300px, tablet = 350px, desktop = 400px
-    $responsiveHeight = $height ?? 'height: 300px; min-height: 300px;';
+    // Use explicit height if provided, otherwise use responsive class
+    $mapHeight = $height ? "style=height:{$height}" : '';
 @endphp
 
-<div class="property-map-container">
+<div class="property-map-container w-full max-w-full">
     <div 
         id="{{ $mapId }}" 
-        class="property-map rounded-3xl border border-white/10 bg-black/20 backdrop-blur-2xl overflow-hidden" 
-        style="{{ $responsiveHeight }} 
-               @media (min-width: 768px) { height: 350px; }
-               @media (min-width: 1024px) { height: 400px; }"
+        class="property-map property-map-responsive w-full max-w-full rounded-3xl border border-white/10 bg-black/20 backdrop-blur-2xl overflow-hidden" 
+        {!! $mapHeight !!}
         data-latitude="{{ $latitude ?: 38.0293 }}" 
         data-longitude="{{ $longitude ?: -78.4767 }}" 
         data-editable="{{ $editable ? 'true' : 'false' }}"
@@ -69,21 +67,40 @@
 @push('styles')
 <style>
 /* Mobile-Optimized Map Styles */
-.property-map {
-    /* Responsive height using CSS Grid */
-    height: 300px;
+.property-map-container {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.property-map-responsive {
+    width: 100%;
+    max-width: 100%;
+    height: 280px; /* Mobile default */
+    min-height: 280px;
     transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
-    .property-map {
+    .property-map-responsive {
+        height: 320px;
+        min-height: 320px;
+    }
+}
+
+@media (min-width: 768px) {
+    .property-map-responsive {
         height: 350px;
+        min-height: 350px;
     }
 }
 
 @media (min-width: 1024px) {
-    .property-map {
+    .property-map-responsive {
         height: 400px;
+        min-height: 400px;
     }
 }
 
@@ -153,6 +170,21 @@
     .leaflet-popup-content {
         font-size: 13px !important;
         margin: 12px !important;
+    }
+}
+
+/* Prevent map container overflow on mobile */
+@media (max-width: 768px) {
+    .property-map-container {
+        margin: 0;
+        padding: 0;
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+    
+    .property-map-responsive {
+        border-radius: 1rem;
+        overflow: hidden;
     }
 }
 </style>

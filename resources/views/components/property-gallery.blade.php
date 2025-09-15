@@ -1,15 +1,15 @@
 @props(['property'])
 
-<div class="overflow-hidden rounded-3xl border border-white/10 bg-black/20 backdrop-blur-2xl" 
+<div class="w-full max-w-full overflow-hidden rounded-3xl border border-white/10 bg-black/20 backdrop-blur-2xl property-gallery-container" 
      x-data="propertyGallery({{ $property->images->count() }})"
      x-init="init()"
 >
      
     @if($property->images->count() > 0)
         <!-- Main Gallery Container -->
-        <div class="relative">
+        <div class="relative w-full max-w-full">
             <!-- Hero Image -->
-            <div class="relative h-64 sm:h-80 lg:h-96 bg-black overflow-hidden">
+            <div class="relative w-full h-64 sm:h-80 lg:h-96 bg-black overflow-hidden">
                 <template x-for="(image, index) in images" :key="image.id">
                     <img 
                         :src="image.url" 
@@ -73,9 +73,9 @@
             </div>
             
             <!-- Mobile-Optimized Thumbnail Strip -->
-            <div class="p-3 sm:p-4 bg-black/40">
+            <div class="w-full p-3 sm:p-4 bg-black/40">
                 <!-- Thumbnail Navigation -->
-                <div class="flex items-center gap-2">
+                <div class="w-full flex items-center gap-2 min-w-0">
                     <!-- Scroll Left Button -->
                     <button 
                         @click="scrollThumbnails('left')"
@@ -91,11 +91,11 @@
                     
                     <!-- Scrollable Thumbnail Container -->
                     <div 
-                        class="flex-1 overflow-x-auto scrollbar-hide"
+                        class="flex-1 min-w-0 overflow-x-auto scrollbar-hide thumbnail-container"
                         x-ref="thumbnailContainer"
                         @scroll="updateScrollButtons()"
                     >
-                        <div class="flex gap-2 sm:gap-3 pb-2">
+                        <div class="flex gap-2 sm:gap-3 pb-2 min-w-max thumbnail-strip">
                             <template x-for="(image, index) in images" :key="image.id">
                                 <button
                                     @click="setCurrentImage(index)"
@@ -440,5 +440,30 @@ function propertyGallery(imageCount) {
 .scrollbar-hide {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile gallery overflow prevention */
+@media (max-width: 640px) {
+    .property-gallery-container {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    .property-gallery-container * {
+        box-sizing: border-box;
+    }
+    
+    /* Ensure flex containers don't exceed parent width */
+    .thumbnail-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    /* Prevent thumbnail flex overflow */
+    .thumbnail-strip {
+        width: max-content;
+        max-width: none;
+    }
 }
 </style>
