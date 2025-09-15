@@ -224,6 +224,9 @@
 
                 <!-- Mortgage Calculator -->
                 <x-mortgage-calculator :property="$property" />
+
+                <!-- Appointment Booking -->
+                <x-property-booking :property="$property" id="schedule-tour" />
             </div>
 
             <!-- Sidebar -->
@@ -238,7 +241,13 @@
                     </div>
                     
                     <div class="space-y-4">
-                        <a href="tel:+18594732259" class="group w-full bg-secondary hover:bg-secondary/90 text-black py-4 px-6 rounded-2xl font-medium text-center transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-secondary/30 flex items-center justify-center">
+                        <button onclick="document.getElementById('schedule-tour').scrollIntoView({behavior: 'smooth', block: 'center'})" class="group w-full bg-secondary hover:bg-secondary/90 text-black py-4 px-6 rounded-2xl font-medium text-center transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-secondary/30 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V6a2 2 0 012-2h4a2 2 0 012 2v1m-6 0h8m-8 0H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-2"/>
+                            </svg>
+                            Schedule Property Tour
+                        </button>
+                        <a href="tel:+18594732259" class="group w-full bg-black/30 hover:bg-secondary border border-white/20 hover:border-secondary text-white hover:text-black py-4 px-6 rounded-2xl font-medium text-center transition-all duration-300 backdrop-blur-sm flex items-center justify-center">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                             </svg>
@@ -291,14 +300,14 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Legal Disclaimers & Compliance -->
-                <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                    <x-property-disclaimers :property="$property" />
-                </div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Legal Disclaimers & Compliance -->
+<div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <x-property-disclaimers :property="$property" />
+</div>
 
 @endsection
