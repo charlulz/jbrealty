@@ -221,6 +221,9 @@
                         </div>
                     </div>
                 @endif
+
+                <!-- Mortgage Calculator -->
+                <x-mortgage-calculator :property="$property" />
             </div>
 
             <!-- Sidebar -->

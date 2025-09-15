@@ -8,8 +8,9 @@
 
 @php
     $mapId = 'property-map-' . uniqid();
-    // Use explicit height if provided, otherwise use responsive class
-    $mapHeight = $height ? "style=height:{$height}" : '';
+    // Ensure map has a minimum height for Leaflet initialization
+    // CSS responsive classes will override this for final sizing
+    $mapHeight = $height ? "style=\"height:{$height}\"" : 'style="min-height:280px;height:400px;"';
 @endphp
 
 <div class="property-map-container w-full max-w-full">
@@ -75,32 +76,32 @@
 }
 
 .property-map-responsive {
-    width: 100%;
-    max-width: 100%;
-    height: 280px; /* Mobile default */
-    min-height: 280px;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 280px !important; /* Mobile default */
+    min-height: 280px !important;
     transition: all 0.3s ease;
     box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
     .property-map-responsive {
-        height: 320px;
-        min-height: 320px;
+        height: 320px !important;
+        min-height: 320px !important;
     }
 }
 
 @media (min-width: 768px) {
     .property-map-responsive {
-        height: 350px;
-        min-height: 350px;
+        height: 350px !important;
+        min-height: 350px !important;
     }
 }
 
 @media (min-width: 1024px) {
     .property-map-responsive {
-        height: 400px;
-        min-height: 400px;
+        height: 400px !important;
+        min-height: 400px !important;
     }
 }
 
@@ -193,8 +194,12 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    let mapInitRetries = 0;
+    const maxRetries = 3;
+    
     // Wait for Leaflet to be available
     function initMap() {
+        mapInitRetries++;
         if (typeof L === 'undefined') {
             console.error('Leaflet library not loaded. Please check that Leaflet JS is included.');
             
@@ -224,6 +229,24 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Initializing map for element: {{ $mapId }}');
         
         try {
+            // Ensure map element has proper dimensions before initializing
+            const computedStyle = window.getComputedStyle(mapElement);
+            const elementHeight = parseInt(computedStyle.height);
+            const elementWidth = parseInt(computedStyle.width);
+            
+            console.log('Map element dimensions:', { width: elementWidth, height: elementHeight });
+            
+            // If dimensions are too small, wait a bit longer (with retry limit)
+            if (elementHeight < 100 || elementWidth < 100) {
+                if (mapInitRetries < maxRetries) {
+                    console.log(`Map dimensions too small (attempt ${mapInitRetries}/${maxRetries}), retrying in 200ms...`);
+                    setTimeout(initMap, 200);
+                    return;
+                } else {
+                    console.warn('Map dimensions still too small after retries, initializing anyway...');
+                }
+            }
+            
             const latitude = parseFloat(mapElement.dataset.latitude) || 38.4022; // Default to Carter County, KY
             const longitude = parseFloat(mapElement.dataset.longitude) || -82.9593;
             const editable = mapElement.dataset.editable === 'true';
@@ -542,9 +565,16 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Map initialized successfully with mobile optimizations');
             
         } catch (error) {
-            console.error('Error initializing map:', error);
+            console.error(`Error initializing map (attempt ${mapInitRetries}/${maxRetries}):`, error);
             
-            // Show fallback content
+            // Retry if we haven't exceeded max attempts
+            if (mapInitRetries < maxRetries) {
+                console.log(`Retrying map initialization in 300ms...`);
+                setTimeout(initMap, 300);
+                return;
+            }
+            
+            // Show fallback content after all retries exhausted
             const mapElement = document.getElementById('{{ $mapId }}');
             if (mapElement) {
                 mapElement.innerHTML = `
@@ -562,8 +592,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Initialize the map with appropriate delay for mobile
-    setTimeout(initMap, 150);
+    // Initialize the map with appropriate delay
+    // Shorter delay for desktop, slightly longer for mobile touch devices
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const initDelay = isMobile ? 150 : 100;
+    
+    console.log('Scheduling map initialization:', { isMobile, delay: initDelay });
+    
+    // Reset retry counter for the initial call
+    mapInitRetries = 0;
+    setTimeout(initMap, initDelay);
 });
 </script>
 @endpush
