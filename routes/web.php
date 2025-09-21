@@ -37,6 +37,14 @@ Route::get('/cookie-policy', function () {
     return view('legal.cookie-policy');
 })->name('cookie-policy');
 
+Route::get('/owner-financing', function () {
+    return view('owner-financing');
+})->name('owner-financing');
+
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
+
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');

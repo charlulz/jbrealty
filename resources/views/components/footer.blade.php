@@ -27,7 +27,7 @@
 
                                 <!-- Company Description -->
                                 <p class="text-white/70 font-light leading-relaxed mb-8 max-w-md">
-                                    Your trusted partner in Eastern Kentucky real estate. Specializing in hunting land, farms, waterfront properties, and residential homes with deep regional expertise.
+                                    Your trusted partner in Kentucky real estate. Specializing in hunting land, farms, waterfront properties, and residential homes with deep regional expertise.
                                 </p>
 
                                 <!-- Newsletter Signup -->
@@ -177,7 +177,7 @@
                         <!-- Tagline -->
                         <div class="text-center mt-8">
                             <p class="text-secondary/60 font-light text-sm italic font-serif">
-                                "Finding your perfect place in Eastern Kentucky"
+                                "Finding your perfect place in Kentucky"
                             </p>
                         </div>
                     </div>

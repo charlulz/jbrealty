@@ -134,7 +134,7 @@
                         <div class="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent w-full max-w-md"></div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
                         <!-- Features -->
                         <div class="space-y-5">
                             <div class="text-center">
@@ -251,6 +251,26 @@
                                         </svg>
                                     </div>
                                     <span class="ml-4 text-sm font-light text-white/80 group-hover:text-white transition-colors">ATV/Trails</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Financing Options -->
+                        <div class="space-y-5">
+                            <div class="text-center">
+                                <h4 class="text-sm font-light text-secondary/80 tracking-[0.2em] uppercase mb-1">Financing</h4>
+                                <div class="w-8 h-px bg-secondary/30 mx-auto"></div>
+                            </div>
+                            <div class="space-y-4">
+                                <label class="group flex items-center p-3 rounded-xl hover:bg-black/20 cursor-pointer transition-colors duration-300">
+                                    <div class="relative">
+                                        <input type="checkbox" wire:model="financing.ownerFinancing" class="sr-only peer">
+                                        <div class="w-4 h-4 border border-white/20 rounded peer-checked:border-secondary peer-checked:bg-secondary transition-all duration-200"></div>
+                                        <svg class="absolute inset-0 w-4 h-4 text-black opacity-0 peer-checked:opacity-100 transition-opacity duration-200" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <span class="ml-4 text-sm font-light text-white/80 group-hover:text-white transition-colors">Owner Financing Available</span>
                                 </label>
                             </div>
                         </div>

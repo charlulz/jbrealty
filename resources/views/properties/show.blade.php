@@ -173,6 +173,76 @@
                     </div>
                 </div>
 
+                <!-- Owner Financing Information -->
+                @if($property->owner_financing_available)
+                    <div class="relative bg-gradient-to-r from-green-500/10 via-green-600/10 to-green-500/10 backdrop-blur-2xl border border-green-500/30 rounded-3xl p-8">
+                        <div class="text-center mb-6">
+                            <div class="inline-flex items-center mb-4">
+                                <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mr-4">
+                                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                    </svg>
+                                </div>
+                                <h2 class="text-2xl font-serif font-medium text-white">Owner Financing Available</h2>
+                            </div>
+                            <p class="text-white/80 leading-relaxed max-w-2xl mx-auto">
+                                This property offers owner financing options with flexible terms and competitive rates. Skip the traditional bank approval process and work directly with the seller.
+                            </p>
+                        </div>
+
+                        @if($property->owner_financing_terms)
+                            <div class="bg-black/20 rounded-2xl p-6 mb-6">
+                                <h3 class="text-lg font-medium text-green-400 mb-4">Financing Terms</h3>
+                                <div class="text-white/90 leading-relaxed whitespace-pre-wrap">{{ $property->owner_financing_terms }}</div>
+                            </div>
+                        @endif
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-black/20 rounded-2xl p-6">
+                                <h3 class="text-lg font-medium text-green-400 mb-4">Benefits</h3>
+                                <ul class="space-y-3 text-white/80">
+                                    <li class="flex items-center">
+                                        <svg class="w-5 h-5 mr-3 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Lower down payment options
+                                    </li>
+                                    <li class="flex items-center">
+                                        <svg class="w-5 h-5 mr-3 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Flexible credit requirements
+                                    </li>
+                                    <li class="flex items-center">
+                                        <svg class="w-5 h-5 mr-3 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Faster closing process
+                                    </li>
+                                    <li class="flex items-center">
+                                        <svg class="w-5 h-5 mr-3 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Direct negotiation with seller
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="bg-black/20 rounded-2xl p-6">
+                                <h3 class="text-lg font-medium text-green-400 mb-4">Next Steps</h3>
+                                <p class="text-white/80 mb-4">Interested in owner financing for this property?</p>
+                                <div class="space-y-3">
+                                    <a href="{{ route('owner-financing') }}" class="block w-full bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 hover:border-green-500/50 text-green-400 hover:text-green-300 py-3 px-4 rounded-xl font-medium text-center transition-all duration-300">
+                                        Apply for Pre-Approval
+                                    </a>
+                                    <a href="mailto:jeremiahbbrown1997@gmail.com?subject=Owner Financing Inquiry: {{ $property->title }}&body=Hi Jeremiah,%0D%0A%0D%0AI'm interested in the owner financing options for the property: {{ $property->title }}%0D%0A%0D%0ACan you provide more details about the terms and requirements?%0D%0A%0D%0AThank you!" class="block w-full bg-black/30 hover:bg-black/50 border border-white/20 hover:border-green-500/30 text-white hover:text-green-400 py-3 px-4 rounded-xl font-medium text-center transition-all duration-300">
+                                        Contact About Terms
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Property Location Map -->
                 @if($property->latitude && $property->longitude)
                     <div class="relative w-full max-w-full bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 sm:p-6 lg:p-8">

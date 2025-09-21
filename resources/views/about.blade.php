@@ -33,7 +33,7 @@
         <!-- Mixed Typography Headline -->
         <div class="mb-8 opacity-0 fade-in-up fade-in-up-delay-1">
             <h1 class="text-5xl md:text-6xl lg:text-7xl mb-6 leading-tight">
-                <span class="block text-white font-sans font-light tracking-wide">Your Land</span>
+                <span class="block text-white font-sans font-light tracking-wide">Your Land & Home</span>
                 <span class="block text-secondary font-serif font-medium italic tracking-tight">
                     Specialist
                 </span>
@@ -95,7 +95,7 @@
                 <!-- Story Content -->
                 <div class="space-y-6 opacity-0 fade-in-up fade-in-up-delay-2">
                     <p class="text-lg text-white/80 font-light leading-relaxed">
-                        Jeremiah Brown isn't just another real estate agent – he's a true local expert from Carlisle, Kentucky who understands the unique character of Eastern Kentucky. As Principal Broker of JB Land & Home Realty, he brings deep regional knowledge and genuine passion for helping people find their perfect property.
+                        Jeremiah Brown isn't just another real estate agent – he's a true local expert from Carlisle, Kentucky who understands the unique character of Kentucky. As Principal Broker of JB Land & Home Realty, he brings deep regional knowledge and genuine passion for helping people find their perfect property.
                     </p>
                     
                     <p class="text-lg text-white/80 font-light leading-relaxed">
@@ -112,7 +112,7 @@
             <div class="opacity-0 fade-in-up fade-in-up-delay-1">
                 <div class="relative">
                     <img 
-                        src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&h=800&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                        src="{{ asset('images/Jeremiah_Headshot.JPEG') }}" 
                         alt="Jeremiah Brown - Principal Broker" 
                         class="w-full h-96 lg:h-[500px] object-cover rounded-3xl shadow-2xl"
                     >
@@ -128,7 +128,7 @@
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-serif text-secondary mb-1">Expert</div>
-                                    <div class="text-xs text-white/70 uppercase tracking-wide">Land Specialist</div>
+                                    <div class="text-xs text-white/70 uppercase tracking-wide">Land and Home Specialist</div>
                                 </div>
                             </div>
                         </div>
@@ -190,7 +190,7 @@
                     <!-- Content -->
                     <h3 class="text-2xl font-serif font-medium text-white mb-6">Unmatched Expertise</h3>
                     <p class="text-white/70 font-light leading-relaxed mb-6">
-                        Jeremiah doesn't just know the market – he lives and breathes Eastern Kentucky real estate. With deep knowledge of land values, property potential, and local opportunities, you get insights that come from years of dedicated focus on rural and recreational properties.
+                        Jeremiah doesn't just know the market – he lives and breathes Kentucky real estate. With deep knowledge of land values, property potential, and local opportunities, you get insights that come from years of dedicated focus on rural and recreational properties.
                     </p>
                     <ul class="space-y-3 text-white/60 text-sm">
                         <li class="flex items-center">
@@ -203,7 +203,7 @@
                             <svg class="w-4 h-4 text-secondary mr-3" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                             </svg>
-                            Eastern Kentucky Expertise
+                            Kentucky Expertise
                         </li>
                         <li class="flex items-center">
                             <svg class="w-4 h-4 text-secondary mr-3" fill="currentColor" viewBox="0 0 20 20">

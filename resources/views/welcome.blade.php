@@ -284,7 +284,7 @@
                     
                     <!-- Testimonial Content -->
                     <blockquote class="text-white/90 font-light leading-relaxed mb-8 text-lg">
-                        "JB helped us find the perfect hunting property in Eastern Kentucky. Their knowledge of the local area was invaluable, and they made the entire process smooth and stress-free."
+                        "JB helped us find the perfect hunting property in Kentucky. Their knowledge of the local area was invaluable, and they made the entire process smooth and stress-free."
                     </blockquote>
                     
                     <!-- Client Info -->
@@ -420,7 +420,7 @@
             <!-- Elegant Subtitle -->
             <div class="max-w-4xl mx-auto opacity-0 fade-in-up fade-in-up-delay-2">
                 <p class="text-lg md:text-xl text-white/80 font-light leading-relaxed font-sans tracking-wide">
-                    Ready to start your land and home journey? Our local experts in Eastern Kentucky are here to help.
+                    Ready to start your land and home journey? Our local experts in Kentucky are here to help.
                 </p>
             </div>
         </div>
@@ -504,7 +504,7 @@
                                 <!-- Content -->
                                 <div>
                                     <h3 class="text-white font-medium text-lg mb-2">Visit Our Office</h3>
-                                    <p class="text-white/70 text-sm mb-3">Serving Eastern Kentucky</p>
+                                    <p class="text-white/70 text-sm mb-3">Serving Kentucky</p>
                                     <div class="text-secondary font-medium text-lg tracking-wide">
                                         <div>4629 Maysville Road</div>
                                         <div>Carlisle, KY, United States, 40311</div>

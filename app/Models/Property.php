@@ -91,7 +91,9 @@ class Property extends Model
         'featured',
         'views_count',
         'inquiries_count',
-        'published_at'
+        'published_at',
+        'owner_financing_available',
+        'owner_financing_terms'
     ];
 
     protected $casts = [
@@ -126,6 +128,7 @@ class Property extends Model
         'hoa_required' => 'boolean',
         'hoa_fee' => 'decimal:2',
         'featured' => 'boolean',
+        'owner_financing_available' => 'boolean',
         'listing_date' => 'date',
         'last_updated' => 'date',
         'published_at' => 'datetime',
@@ -237,6 +240,11 @@ class Property extends Model
         }
 
         return $query;
+    }
+
+    public function scopeOwnerFinancing($query)
+    {
+        return $query->where('owner_financing_available', true);
     }
 
     // Helper methods

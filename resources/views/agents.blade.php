@@ -173,7 +173,7 @@
                         <div class="mb-8">
                             <h4 class="text-lg font-medium text-white mb-4">About Jeremiah</h4>
                             <p class="text-white/70 font-light leading-relaxed text-sm mb-4">
-                                As the Principal Broker and founder of JB Land & Home Realty, Jeremiah Brown brings a deep passion for rural properties and extensive knowledge of Eastern Kentucky's real estate market. He specializes in hunting land, farms, recreational properties, and rural residential homes throughout the region.
+                                As the Principal Broker and founder of JB Land & Home Realty, Jeremiah Brown brings a deep passion for rural properties and extensive knowledge of Kentucky's real estate market. He specializes in hunting land, farms, recreational properties, and rural residential homes throughout the region.
                             </p>
                             <p class="text-white/70 font-light leading-relaxed text-sm">
                                 Jeremiah's commitment to personalized service and his understanding of what makes rural properties special have made him a trusted advisor for buyers and sellers alike. Whether you're looking for your dream hunting retreat, a working farm, or a peaceful rural home, Jeremiah has the expertise to help you find exactly what you're looking for.
@@ -239,7 +239,7 @@
             <!-- Elegant Subtitle -->
             <div class="max-w-4xl mx-auto opacity-0 fade-in-up fade-in-up-delay-2">
                 <p class="text-lg md:text-xl text-white/80 font-light leading-relaxed font-sans tracking-wide">
-                    Our expert team is ready to help you navigate Eastern Kentucky's real estate market. 
+                    Our expert team is ready to help you navigate Kentucky's real estate market. 
                     Contact us today to get started on your property journey.
                 </p>
             </div>

@@ -32,6 +32,10 @@ class PropertySearch extends Component
         'atv' => false,
     ];
     
+    public $financing = [
+        'ownerFinancing' => false,
+    ];
+    
     public $searchResults = [];
     public $hasSearched = false;
 
@@ -126,6 +130,20 @@ class PropertySearch extends Component
             }
         }
 
+        // Financing filter
+        $activeFinancing = array_filter($this->financing);
+        if (!empty($activeFinancing)) {
+            foreach ($activeFinancing as $financingType => $enabled) {
+                if ($enabled) {
+                    switch ($financingType) {
+                        case 'ownerFinancing':
+                            $query->ownerFinancing();
+                            break;
+                    }
+                }
+            }
+        }
+
         // Execute search
         $properties = $query->with(['images' => function ($query) {
             $query->where('is_primary', true)->orWhere(function ($q) {
@@ -160,7 +178,7 @@ class PropertySearch extends Component
     {
         $this->reset([
             'propertyType', 'location', 'priceRange', 'acreage',
-            'features', 'improvements', 'recreation', 
+            'features', 'improvements', 'recreation', 'financing',
             'searchResults', 'hasSearched', 'advancedSearchOpen'
         ]);
         

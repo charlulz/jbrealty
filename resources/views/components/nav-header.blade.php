@@ -38,9 +38,10 @@
             <!-- Refined Desktop Navigation -->
             <nav class="hidden lg:flex items-center space-x-12">
                 <a href="{{ route('properties.index') }}" class="nav-link gold-sweep text-white/90 hover:text-white px-4 py-3 text-sm font-light tracking-wide transition-all duration-300">Browse Properties</a>
+                <a href="{{ route('owner-financing') }}" class="nav-link gold-sweep text-white/90 hover:text-white px-4 py-3 text-sm font-light tracking-wide transition-all duration-300">Owner Financing</a>
                 <a href="{{ route('agents') }}" class="nav-link gold-sweep text-white/90 hover:text-white px-4 py-3 text-sm font-light tracking-wide transition-all duration-300">Agents</a>
                 <a href="{{ route('about') }}" class="nav-link gold-sweep text-white/90 hover:text-white px-4 py-3 text-sm font-light tracking-wide transition-all duration-300">About</a>
-                <a href="#" class="nav-link gold-sweep text-white/90 hover:text-white px-4 py-3 text-sm font-light tracking-wide transition-all duration-300">Contact</a>
+                <a href="{{ route('contact') }}" class="nav-link gold-sweep text-white/90 hover:text-white px-4 py-3 text-sm font-light tracking-wide transition-all duration-300">Contact</a>
             </nav>
 
             <!-- Refined CTA Buttons & Mobile Menu -->
@@ -86,9 +87,10 @@
          class="lg:hidden">
         <div class="px-2 pt-2 pb-3 space-y-1 bg-black/95 backdrop-blur-xl border-t border-secondary/20">
             <a href="{{ route('properties.index') }}" class="block px-3 py-2 text-sm font-medium text-gray-300 hover:text-secondary transition-colors duration-300">Browse Properties</a>
+            <a href="{{ route('owner-financing') }}" class="block px-3 py-2 text-sm font-medium text-gray-300 hover:text-secondary transition-colors duration-300">Owner Financing</a>
             <a href="{{ route('agents') }}" class="block px-3 py-2 text-sm font-medium text-gray-300 hover:text-secondary transition-colors duration-300">Agents</a>
             <a href="{{ route('about') }}" class="block px-3 py-2 text-sm font-medium text-gray-300 hover:text-secondary transition-colors duration-300">About</a>
-            <a href="#" class="block px-3 py-2 text-sm font-medium text-gray-300 hover:text-secondary transition-colors duration-300">Contact</a>
+            <a href="{{ route('contact') }}" class="block px-3 py-2 text-sm font-medium text-gray-300 hover:text-secondary transition-colors duration-300">Contact</a>
             
             <div class="pt-4 border-t border-secondary/20">
                 @auth
