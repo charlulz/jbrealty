@@ -67,7 +67,7 @@ class PropertyPacketService
                     'name' => 'Jeremiah Brown',
                     'title' => 'Principal Broker',
                     'phone' => '(859) 473-2259',
-                    'email' => 'jeremiahbbrown1997@gmail.com',
+                    'email' => 'jblandandhomerealty@gmail.com',
                     'address' => '4629 Maysville Road, Carlisle, KY 40311',
                     'license' => '294658'
                 ]
@@ -148,7 +148,7 @@ class PropertyPacketService
             ], function ($message) use ($contactData, $property, $pdfFullPath) {
                 $message->to($contactData['email'], $contactData['firstName'] . ' ' . $contactData['lastName'])
                        ->subject('Your Property Information Packet - ' . $property->title)
-                       ->from('jeremiahbbrown1997@gmail.com', 'Jeremiah Brown - JB Land & Home Realty')
+                       ->from('jblandandhomerealty@gmail.com', 'Jeremiah Brown - JB Land & Home Realty')
                        ->attach($pdfFullPath, [
                            'as' => 'Property-Packet-' . $property->id . '.pdf',
                            'mime' => 'application/pdf'

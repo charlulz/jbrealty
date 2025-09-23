@@ -184,7 +184,7 @@
             <div style="color: #fcce00; margin-bottom: 15px;">{{ $agentInfo['title'] ?? 'Principal Broker' }}</div>
             <div class="contact-details">
                 <strong>Direct:</strong> {{ $agentInfo['phone'] ?? '(859) 473-2259' }}<br>
-                <strong>Email:</strong> {{ $agentInfo['email'] ?? 'jeremiahbbrown1997@gmail.com' }}<br>
+                <strong>Email:</strong> {{ $agentInfo['email'] ?? 'jblandandhomerealty@gmail.com' }}<br>
                 <strong>Office:</strong> {{ $agentInfo['address'] ?? '4629 Maysville Road, Carlisle, KY 40311' }}<br>
                 <strong>License:</strong> #{{ $agentInfo['license'] ?? '294658' }}
             </div>
@@ -194,7 +194,7 @@
         <div class="footer">
             <p><strong>JB Land & Home Realty</strong></p>
             <p>{{ $agentInfo['address'] ?? '4629 Maysville Road, Carlisle, KY 40311' }}</p>
-            <p>{{ $agentInfo['phone'] ?? '(859) 473-2259' }} | {{ $agentInfo['email'] ?? 'jeremiahbbrown1997@gmail.com' }}</p>
+            <p>{{ $agentInfo['phone'] ?? '(859) 473-2259' }} | {{ $agentInfo['email'] ?? 'jblandandhomerealty@gmail.com' }}</p>
             
             <div class="disclaimer">
                 This information is believed to be accurate but is not guaranteed. Property details should be verified independently. 

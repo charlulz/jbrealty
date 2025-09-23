@@ -143,7 +143,7 @@
                                     <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                                     <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                                 </svg>
-                                    <span>jeremiahbbrown1997@gmail.com</span>
+                                    <span>jblandandhomerealty@gmail.com</span>
                         </div>
                             <div class="flex items-center text-white/90 text-sm font-light">
                                 <svg class="w-4 h-4 mr-2 opacity-60" fill="currentColor" viewBox="0 0 20 20">
@@ -165,7 +165,7 @@
                             </div>
                             <div class="text-center">
                                 <div class="text-secondary/80 text-xs uppercase tracking-wide font-light mb-1">Specialization</div>
-                                <div class="text-white/90 font-medium">Land & Rural Properties</div>
+                                <div class="text-white/90 font-medium">Land, Residential & Rural Properties</div>
                             </div>
                         </div>
                         
@@ -190,7 +190,7 @@
                                     <span>Call Now</span>
                                 </span>
                             </a>
-                            <a href="mailto:jeremiahbbrown1997@gmail.com" class="group/btn flex-1 bg-black/30 hover:bg-secondary border border-white/20 hover:border-secondary text-white hover:text-black py-3 px-6 rounded-2xl font-medium text-sm tracking-wide transition-all duration-300 backdrop-blur-sm">
+                            <a href="mailto:jblandandhomerealty@gmail.com" class="group/btn flex-1 bg-black/30 hover:bg-secondary border border-white/20 hover:border-secondary text-white hover:text-black py-3 px-6 rounded-2xl font-medium text-sm tracking-wide transition-all duration-300 backdrop-blur-sm">
                                 <span class="flex items-center justify-center">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.83 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -247,7 +247,7 @@
         
         <!-- Premium CTA Buttons -->
         <div class="flex flex-col sm:flex-row gap-6 justify-center items-center opacity-0 fade-in-up fade-in-up-delay-3">
-            <a href="mailto:jeremiahbbrown1997@gmail.com" class="group inline-flex items-center btn-premium text-black px-10 py-4 rounded-2xl font-medium text-base tracking-wide transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-secondary/30">
+            <a href="mailto:jblandandhomerealty@gmail.com" class="group inline-flex items-center btn-premium text-black px-10 py-4 rounded-2xl font-medium text-base tracking-wide transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-secondary/30">
                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform translate-x-full group-hover:translate-x-0 transition-transform duration-700"></div>
                 <div class="relative flex items-center">
                     <span>Contact Jeremiah</span>

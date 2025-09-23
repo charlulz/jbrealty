@@ -477,8 +477,8 @@
                                 <div>
                                     <h3 class="text-white font-medium text-lg mb-2">Email Us</h3>
                                     <p class="text-white/70 text-sm mb-3">Send us your property requirements</p>
-                                    <a href="mailto:info@jblandhome.com" class="text-secondary hover:text-secondary/80 font-medium text-lg tracking-wide transition-colors duration-300">
-                                        info@jblandhome.com
+                                    <a href="mailto:jblandandhomerealty@gmail.com" class="text-secondary hover:text-secondary/80 font-medium text-lg tracking-wide transition-colors duration-300">
+                                        jblandandhomerealty@gmail.com
                                     </a>
                                 </div>
                             </div>

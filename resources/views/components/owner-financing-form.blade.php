@@ -268,9 +268,9 @@ Thank you!
     `);
     
     // Open email client
-    window.location.href = `mailto:jeremiahbbrown1997@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:jblandandhomerealty@gmail.com?subject=${subject}&body=${body}`;
     
     // Show success message
-    alert('Thank you for your application! Your email client should now open with your pre-filled application. If it doesn\'t open automatically, please contact us directly at jeremiahbbrown1997@gmail.com.');
+    alert('Thank you for your application! Your email client should now open with your pre-filled application. If it doesn\'t open automatically, please contact us directly at jblandandhomerealty@gmail.com.');
 });
 </script>

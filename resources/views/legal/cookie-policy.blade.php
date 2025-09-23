@@ -225,7 +225,7 @@
                         <p class="text-white/80 mb-2">Kentucky License #: 294658</p>
                         <p class="text-white/80 mb-2">4629 Maysville Road, Carlisle, KY 40311</p>
                         <p class="text-white/80 mb-2">Phone: <a href="tel:+18594732259" class="text-secondary hover:text-secondary/80">859.473.2259</a></p>
-                        <p class="text-white/80">Email: <a href="mailto:jeremiahbbrown1997@gmail.com" class="text-secondary hover:text-secondary/80">jeremiahbbrown1997@gmail.com</a></p>
+                        <p class="text-white/80">Email: <a href="mailto:jblandandhomerealty@gmail.com" class="text-secondary hover:text-secondary/80">jblandandhomerealty@gmail.com</a></p>
                     </div>
                 </div>
 

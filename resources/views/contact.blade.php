@@ -125,8 +125,8 @@
                     <p class="text-white/70 font-light leading-relaxed mb-4">
                         Send us a detailed message about your property interests.
                     </p>
-                    <a href="mailto:jeremiahbbrown1997@gmail.com" class="text-secondary hover:text-secondary/80 font-medium transition-colors duration-300 break-all">
-                        jeremiahbbrown1997@gmail.com
+                    <a href="mailto:jblandandhomerealty@gmail.com" class="text-secondary hover:text-secondary/80 font-medium transition-colors duration-300 break-all">
+                        jblandandhomerealty@gmail.com
                     </a>
                 </div>
             </div>
@@ -307,16 +307,16 @@
                     <h3 class="text-xl font-medium text-secondary mb-6">Office Hours</h3>
                     <div class="space-y-3">
                         <div class="flex justify-between items-center py-2 border-b border-white/10">
-                            <span class="text-white/70">Monday - Friday:</span>
-                            <span class="text-white font-medium">9:00 AM - 6:00 PM</span>
+                            <span class="text-white/70">Available:</span>
+                            <span class="text-white font-medium">24/7</span>
                         </div>
                         <div class="flex justify-between items-center py-2 border-b border-white/10">
-                            <span class="text-white/70">Saturday:</span>
-                            <span class="text-white font-medium">10:00 AM - 4:00 PM</span>
+                            <span class="text-white/70">Phone & Email:</span>
+                            <span class="text-white font-medium">Always Open</span>
                         </div>
                         <div class="flex justify-between items-center py-2 border-b border-white/10">
-                            <span class="text-white/70">Sunday:</span>
-                            <span class="text-white font-medium">By Appointment</span>
+                            <span class="text-white/70">Response Time:</span>
+                            <span class="text-white font-medium">Within 24 Hours</span>
                         </div>
                     </div>
                     <p class="text-white/60 text-sm mt-4">
@@ -403,10 +403,10 @@ JB Land & Home Realty Website
     `);
     
     // Open email client
-    window.location.href = `mailto:jeremiahbbrown1997@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:jblandandhomerealty@gmail.com?subject=${subject}&body=${body}`;
     
     // Show success message
-    alert('Thank you for your message! Your email client should now open with your inquiry. If it doesn\'t open automatically, please contact us directly at jeremiahbbrown1997@gmail.com or (859) 473-2259.');
+    alert('Thank you for your message! Your email client should now open with your inquiry. If it doesn\'t open automatically, please contact us directly at jblandandhomerealty@gmail.com or (859) 473-2259.');
 });
 </script>
 

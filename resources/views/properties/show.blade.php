@@ -234,7 +234,7 @@
                                     <a href="{{ route('owner-financing') }}" class="block w-full bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 hover:border-green-500/50 text-green-400 hover:text-green-300 py-3 px-4 rounded-xl font-medium text-center transition-all duration-300">
                                         Apply for Pre-Approval
                                     </a>
-                                    <a href="mailto:jeremiahbbrown1997@gmail.com?subject=Owner Financing Inquiry: {{ $property->title }}&body=Hi Jeremiah,%0D%0A%0D%0AI'm interested in the owner financing options for the property: {{ $property->title }}%0D%0A%0D%0ACan you provide more details about the terms and requirements?%0D%0A%0D%0AThank you!" class="block w-full bg-black/30 hover:bg-black/50 border border-white/20 hover:border-green-500/30 text-white hover:text-green-400 py-3 px-4 rounded-xl font-medium text-center transition-all duration-300">
+                                    <a href="mailto:jblandandhomerealty@gmail.com?subject=Owner Financing Inquiry: {{ $property->title }}&body=Hi Jeremiah,%0D%0A%0D%0AI'm interested in the owner financing options for the property: {{ $property->title }}%0D%0A%0D%0ACan you provide more details about the terms and requirements?%0D%0A%0D%0AThank you!" class="block w-full bg-black/30 hover:bg-black/50 border border-white/20 hover:border-green-500/30 text-white hover:text-green-400 py-3 px-4 rounded-xl font-medium text-center transition-all duration-300">
                                         Contact About Terms
                                     </a>
                                 </div>
@@ -326,7 +326,7 @@
                             </svg>
                             Call Jeremiah: 859.473.2259
                         </a>
-                        <a href="mailto:jeremiahbbrown1997@gmail.com?subject=Property Inquiry: {{ $property->title }}" class="group w-full bg-black/30 hover:bg-secondary border border-white/20 hover:border-secondary text-white hover:text-black py-4 px-6 rounded-2xl font-medium text-center transition-all duration-300 backdrop-blur-sm flex items-center justify-center">
+                        <a href="mailto:jblandandhomerealty@gmail.com?subject=Property Inquiry: {{ $property->title }}" class="group w-full bg-black/30 hover:bg-secondary border border-white/20 hover:border-secondary text-white hover:text-black py-4 px-6 rounded-2xl font-medium text-center transition-all duration-300 backdrop-blur-sm flex items-center justify-center">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.83 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
@@ -374,7 +374,7 @@
                         <div>
                             <p class="font-medium text-white text-lg">Jeremiah Brown</p>
                             <p class="text-white/70 mb-2">Principal Broker</p>
-                            <p class="text-white/70 text-sm">jeremiahbbrown1997@gmail.com</p>
+                            <p class="text-white/70 text-sm">jblandandhomerealty@gmail.com</p>
                             <p class="text-white/70 text-sm">859.473.2259</p>
                         </div>
                     </div>
