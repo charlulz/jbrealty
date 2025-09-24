@@ -160,6 +160,8 @@ class ImportJeremiahBrownGeographic extends Command
             'Williamsburg' => ['type' => 'city', 'filter' => "City Eq 'Williamsburg'"], // 2 listings found  
             'Corinth' => ['type' => 'city', 'filter' => "City Eq 'Corinth'"], // 1 listing found
             'Wallingford' => ['type' => 'city', 'filter' => "City Eq 'Wallingford'"], // 1 listing found
+            'Louisa' => ['type' => 'city', 'filter' => "City Eq 'Louisa'"], // NEW MARKET
+            'Mt Sterling' => ['type' => 'city', 'filter' => "City Eq 'Mt Sterling'"], // NEW MARKET
             
             // Counties (using simplified filter that works)
             'Fleming County' => ['type' => 'county', 'filter' => "CountyOrParish Eq 'Fleming County'"],
