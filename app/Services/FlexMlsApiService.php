@@ -101,7 +101,7 @@ class FlexMlsApiService
     }
 
     /**
-     * Import photos for a property from existing API data
+     * Import photos for a property using the dedicated photos API endpoint
      */
     public function importPropertyPhotos($property, bool $updateExisting = false): int
     {
@@ -112,6 +112,14 @@ class FlexMlsApiService
 
         $apiData = is_string($property->api_data) ? json_decode($property->api_data, true) : $property->api_data;
         
+        // Use the ListingKey/Id (long format) for the photos API - this is the correct format
+        $listingKey = $apiData['Id'] ?? $apiData['StandardFields']['ListingKey'] ?? null;
+        
+        if (!$listingKey) {
+            Log::warning('No listing key found in API data', ['property_id' => $property->id]);
+            return 0;
+        }
+
         // Check if we should skip existing photos
         if (!$updateExisting && $property->images()->where('api_source', 'flexmls')->exists()) {
             Log::info('Skipping photo import - photos already exist', [
@@ -121,16 +129,21 @@ class FlexMlsApiService
             return 0;
         }
 
-        // Extract photos from the existing API data
-        $photos = $this->extractPhotosFromApiData($apiData);
+        // Get ALL photos using the dedicated photos API endpoint
+        $photos = $this->getListingPhotos($listingKey);
         
         if (empty($photos)) {
-            Log::info('No photos found in API data for property', [
-                'property_id' => $property->id,
-                'has_standard_fields' => isset($apiData['StandardFields']),
-                'has_photos_array' => isset($apiData['StandardFields']['Photos']) || isset($apiData['Photos'])
-            ]);
-            return 0;
+            // Fall back to extracting from existing API data if photos API fails
+            $photos = $this->extractPhotosFromApiData($apiData);
+            
+            if (empty($photos)) {
+                Log::info('No photos found for property', [
+                    'property_id' => $property->id,
+                    'listing_key' => $listingKey,
+                    'photos_count_field' => $apiData['StandardFields']['PhotosCount'] ?? 0
+                ]);
+                return 0;
+            }
         }
 
         $importedCount = 0;
@@ -166,7 +179,7 @@ class FlexMlsApiService
                     'property_id' => $property->id,
                     'photo_id' => $photo['Id'] ?? 'unknown',
                     'error' => $e->getMessage(),
-                    'photo_structure' => array_keys($photo)
+                    'photo_structure' => is_array($photo) ? array_keys($photo) : 'not_array'
                 ]);
             }
         }
@@ -174,7 +187,8 @@ class FlexMlsApiService
         Log::info('Photo import completed', [
             'property_id' => $property->id,
             'imported_count' => $importedCount,
-            'total_photos' => count($photos)
+            'total_photos' => count($photos),
+            'used_api_endpoint' => !empty($this->getListingPhotos($listingKey))
         ]);
 
         return $importedCount;
