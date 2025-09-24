@@ -93,7 +93,9 @@ class Property extends Model
         'inquiries_count',
         'published_at',
         'owner_financing_available',
-        'owner_financing_terms'
+        'owner_financing_terms',
+        'api_source',
+        'api_data'
     ];
 
     protected $casts = [
@@ -135,6 +137,7 @@ class Property extends Model
         'water_features' => 'array',
         'outbuildings' => 'array',
         'recreational_activities' => 'array',
+        'api_data' => 'array',
     ];
 
     // Relationships

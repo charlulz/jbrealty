@@ -41,4 +41,11 @@ return [
         'base_url' => env('GHL_BASE_URL', 'https://rest.gohighlevel.com/v1'),
     ],
 
+    'flexmls' => [
+        'access_token' => env('FLEXMLS_ACCESS_TOKEN', 'bbqc409db06nezg8fdsz0jaw7'),
+        'feed_id' => env('FLEXMLS_FEED_ID', 'ddnzarj1vajdzzvcdp2es4tro'),
+        'base_url' => env('FLEXMLS_BASE_URL', 'https://replication.sparkapi.com'), // Revert - our key only works with replication
+        'replication_url' => env('FLEXMLS_REPLICATION_URL', 'https://replication.sparkapi.com'), // Keep as fallback
+    ],
+
 ];
