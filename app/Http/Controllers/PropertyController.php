@@ -13,7 +13,7 @@ class PropertyController extends Controller
     public function index(Request $request)
     {
         $properties = Property::published()
-            ->active()
+            ->available()
             ->with(['images' => function($query) {
                 $query->where('is_primary', true)->orWhere(function($q) {
                     $q->orderBy('sort_order')->limit(1);
@@ -59,7 +59,7 @@ class PropertyController extends Controller
 
         // Get similar properties
         $similarProperties = Property::published()
-            ->active()
+            ->available()
             ->where('id', '!=', $property->id)
             ->where('property_type', $property->property_type)
             ->whereBetween('total_acres', [

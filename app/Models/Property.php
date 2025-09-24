@@ -192,6 +192,11 @@ class Property extends Model
                     ->where('published_at', '<=', now());
     }
 
+    public function scopeAvailable($query)
+    {
+        return $query->whereIn('status', ['active', 'pending']);
+    }
+
     public function scopeFeatured($query)
     {
         return $query->where('featured', true);

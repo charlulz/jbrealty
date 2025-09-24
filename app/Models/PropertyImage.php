@@ -15,6 +15,10 @@ class PropertyImage extends Model
         'filename',
         'path',
         'url',
+        'api_photo_id',
+        'photo_urls',
+        'tags',
+        'api_source',
         'title',
         'caption',
         'alt_text',
@@ -32,7 +36,9 @@ class PropertyImage extends Model
         'file_size' => 'integer',
         'width' => 'integer',
         'height' => 'integer',
-        'sort_order' => 'integer'
+        'sort_order' => 'integer',
+        'photo_urls' => 'array',
+        'tags' => 'array'
     ];
 
     // Relationships

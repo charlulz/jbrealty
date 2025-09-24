@@ -22,16 +22,25 @@
         <!-- Property Header -->
         <div class="text-center mb-12">
             <div class="mb-6">
-                @if($property->featured)
-                    <div class="inline-flex items-center mb-4">
+                <div class="flex items-center justify-center gap-4 mb-4">
+                    @if($property->featured)
                         <div class="px-4 py-1.5 bg-secondary/90 backdrop-blur-sm text-black rounded-full text-sm font-medium tracking-wide uppercase">
                             <svg class="w-4 h-4 mr-2 inline" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                             </svg>
                             Featured Property
                         </div>
-                    </div>
-                @endif
+                    @endif
+                    
+                    @if($property->status === 'pending')
+                        <div class="px-4 py-1.5 bg-amber-500/90 backdrop-blur-sm text-white rounded-full text-sm font-medium tracking-wide uppercase animate-pulse">
+                            <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Contingent/Pending
+                        </div>
+                    @endif
+                </div>
                 
                 <h1 class="text-4xl md:text-5xl font-serif font-medium text-white mb-4">{{ $property->title }}</h1>
                 

@@ -101,6 +101,16 @@
 
                             <!-- Badges -->
                             <div class="absolute top-6 right-6 flex flex-col gap-2">
+                                <!-- Pending/Contingent Status Badge -->
+                                @if($property->status === 'pending')
+                                    <div class="px-4 py-1.5 bg-amber-500/90 backdrop-blur-sm text-white rounded-full text-xs font-medium tracking-wide uppercase animate-pulse">
+                                        <svg class="w-3 h-3 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Contingent/Pending
+                                    </div>
+                                @endif
+                                
                                 <!-- Owner Financing Badge -->
                                 @if($property->owner_financing_available)
                                     <div class="px-4 py-1.5 bg-green-500/90 backdrop-blur-sm text-white rounded-full text-xs font-medium tracking-wide uppercase">

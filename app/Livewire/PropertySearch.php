@@ -53,8 +53,8 @@ class PropertySearch extends Component
             'acreage' => 'required|string',
         ]);
 
-        // Build search query
-        $query = Property::published()->active();
+        // Build search query  
+        $query = Property::published()->available();
 
         // Property type filter
         if ($this->propertyType && $this->propertyType !== 'All Properties') {
@@ -161,7 +161,8 @@ class PropertySearch extends Component
                 'price' => $property->formatted_price,
                 'type' => ucfirst($property->property_type),
                 'image' => $property->primary_image ?: null,
-                'slug' => $property->slug
+                'slug' => $property->slug,
+                'status' => $property->status
             ];
         })->toArray();
 

@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use App\Models\PropertyImage;
 
 class FlexMlsApiService
 {
@@ -79,7 +80,7 @@ class FlexMlsApiService
     }
 
     /**
-     * Get listing photos
+     * Get listing photos (returns full Spark API photo data)
      */
     public function getListingPhotos(string $mlsNumber): array
     {
@@ -96,24 +97,220 @@ class FlexMlsApiService
             return [];
         }
         
-        $photos = [];
-        foreach ($response['D']['Results'] as $photo) {
-            $photos[] = [
-                'id' => $photo['Id'] ?? null,
-                'name' => $photo['Name'] ?? '',
-                'url' => $photo['Uri1024'] ?? $photo['Uri800'] ?? $photo['Uri640'] ?? $photo['Uri300'] ?? '',
-                'caption' => $photo['Caption'] ?? '',
-                'primary' => ($photo['Primary'] ?? 'false') === 'true',
-                'order' => $photo['Order'] ?? 0,
-            ];
+        return $response['D']['Results'];
+    }
+
+    /**
+     * Import photos for a property from existing API data
+     */
+    public function importPropertyPhotos($property, bool $updateExisting = false): int
+    {
+        if (!$property->api_data) {
+            Log::warning('No API data found for property', ['property_id' => $property->id]);
+            return 0;
+        }
+
+        $apiData = is_string($property->api_data) ? json_decode($property->api_data, true) : $property->api_data;
+        
+        // Check if we should skip existing photos
+        if (!$updateExisting && $property->images()->where('api_source', 'flexmls')->exists()) {
+            Log::info('Skipping photo import - photos already exist', [
+                'property_id' => $property->id,
+                'existing_count' => $property->images()->where('api_source', 'flexmls')->count()
+            ]);
+            return 0;
+        }
+
+        // Extract photos from the existing API data
+        $photos = $this->extractPhotosFromApiData($apiData);
+        
+        if (empty($photos)) {
+            Log::info('No photos found in API data for property', [
+                'property_id' => $property->id,
+                'has_standard_fields' => isset($apiData['StandardFields']),
+                'has_photos_array' => isset($apiData['StandardFields']['Photos']) || isset($apiData['Photos'])
+            ]);
+            return 0;
+        }
+
+        $importedCount = 0;
+        $sortOrder = $property->images()->max('sort_order') ?? 0;
+        
+        foreach ($photos as $index => $photo) {
+            $sortOrder++;
+            
+            try {
+                $photoData = $this->transformPhotoData($photo, $property, $sortOrder);
+                
+                // Check if photo already exists
+                $existingPhoto = PropertyImage::where('property_id', $property->id)
+                    ->where('api_photo_id', $photo['Id'])
+                    ->first();
+                
+                if ($existingPhoto && !$updateExisting) {
+                    continue;
+                }
+                
+                if ($existingPhoto) {
+                    $existingPhoto->update($photoData);
+                    Log::info('Updated existing photo', ['property_id' => $property->id, 'photo_id' => $photo['Id']]);
+                } else {
+                    PropertyImage::create($photoData);
+                    Log::info('Imported new photo', ['property_id' => $property->id, 'photo_id' => $photo['Id']]);
+                }
+                
+                $importedCount++;
+                
+            } catch (\Exception $e) {
+                Log::error('Failed to import photo', [
+                    'property_id' => $property->id,
+                    'photo_id' => $photo['Id'] ?? 'unknown',
+                    'error' => $e->getMessage(),
+                    'photo_structure' => array_keys($photo)
+                ]);
+            }
+        }
+
+        Log::info('Photo import completed', [
+            'property_id' => $property->id,
+            'imported_count' => $importedCount,
+            'total_photos' => count($photos)
+        ]);
+
+        return $importedCount;
+    }
+
+    /**
+     * Extract photos from existing API data
+     */
+    private function extractPhotosFromApiData(array $apiData): array
+    {
+        // Check StandardFields first (most common location)
+        if (isset($apiData['StandardFields']['Photos']) && is_array($apiData['StandardFields']['Photos'])) {
+            return $apiData['StandardFields']['Photos'];
         }
         
-        // Sort by order
-        usort($photos, function($a, $b) {
-            return ($a['order'] ?? 0) <=> ($b['order'] ?? 0);
-        });
+        // Check if Photos array is at the top level
+        if (isset($apiData['Photos']) && is_array($apiData['Photos'])) {
+            return $apiData['Photos'];
+        }
         
-        return $photos;
+        // Check if there's a PrimaryPhoto that we can use
+        if (isset($apiData['PrimaryPhoto']) && is_array($apiData['PrimaryPhoto'])) {
+            return [$apiData['PrimaryPhoto']];
+        }
+        
+        return [];
+    }
+
+    /**
+     * Transform Spark API photo data to our PropertyImage format
+     */
+    private function transformPhotoData(array $photo, $property, int $sortOrder): array
+    {
+        // Build photo URLs array from all available sizes
+        $photoUrls = [];
+        $urlFields = ['UriThumb', 'Uri300', 'Uri640', 'Uri800', 'Uri1024', 'Uri1280', 'Uri1600', 'Uri2048', 'UriLarge'];
+        
+        foreach ($urlFields as $field) {
+            if (!empty($photo[$field])) {
+                $photoUrls[strtolower(str_replace('uri', '', $field))] = $photo[$field];
+            }
+        }
+
+        // Use the largest available image as the primary URL
+        $primaryUrl = $photo['UriLarge'] ?? $photo['Uri2048'] ?? $photo['Uri1600'] ?? $photo['Uri1280'] ?? $photo['Uri1024'] ?? $photo['Uri800'] ?? $photo['Uri640'] ?? $photo['Uri300'] ?? $photo['UriThumb'] ?? null;
+
+        return [
+            'property_id' => $property->id,
+            'api_photo_id' => $photo['Id'],
+            'api_source' => 'flexmls',
+            'filename' => $photo['Name'] ?? 'listing-photo.jpg',
+            'path' => '', // Not storing locally, using API URLs
+            'url' => $primaryUrl,
+            'photo_urls' => $photoUrls,
+            'title' => $photo['Name'] ?? 'Listing Photo',
+            'caption' => $photo['Caption'] ?? '',
+            'alt_text' => $this->generatePhotoAltText($property, $photo),
+            'tags' => $photo['Tags'] ?? [],
+            'sort_order' => $sortOrder,
+            'is_primary' => $photo['Primary'] ?? false,
+            'category' => $this->determinePhotoCategory($photo),
+            'file_size' => null, // Not available from API
+            'mime_type' => 'image/jpeg', // Assuming JPEG
+            'width' => null, // Not available from API
+            'height' => null, // Not available from API
+        ];
+    }
+
+    /**
+     * Generate alt text for photo accessibility
+     */
+    private function generatePhotoAltText($property, array $photo): string
+    {
+        $name = $photo['Name'] ?? '';
+        $caption = $photo['Caption'] ?? '';
+        
+        if ($caption) {
+            return $caption;
+        }
+        
+        if ($name && $name !== 'Listing Photo') {
+            return "{$name} - {$property->title}";
+        }
+        
+        $tags = $photo['Tags'] ?? [];
+        if (!empty($tags['Room'])) {
+            $roomType = is_array($tags['Room']) ? implode(', ', $tags['Room']) : $tags['Room'];
+            return "{$roomType} - {$property->title}";
+        }
+        
+        return "Property photo - {$property->title}";
+    }
+
+    /**
+     * Determine photo category based on API data
+     */
+    private function determinePhotoCategory(array $photo): string
+    {
+        $tags = $photo['Tags'] ?? [];
+        
+        // Check for room tags to determine category
+        if (!empty($tags['Room'])) {
+            $rooms = is_array($tags['Room']) ? $tags['Room'] : [$tags['Room']];
+            
+            foreach ($rooms as $room) {
+                $room = strtolower($room);
+                
+                if (in_array($room, ['living', 'kitchen', 'bedroom', 'bathroom', 'dining', 'family', 'office', 'basement'])) {
+                    return 'interior';
+                }
+                
+                if (in_array($room, ['exterior', 'porch', 'deck', 'patio', 'yard'])) {
+                    return 'exterior';
+                }
+            }
+        }
+        
+        // Check photo name/caption for clues
+        $name = strtolower($photo['Name'] ?? '');
+        $caption = strtolower($photo['Caption'] ?? '');
+        $text = $name . ' ' . $caption;
+        
+        if (strpos($text, 'aerial') !== false || strpos($text, 'drone') !== false || strpos($text, 'overhead') !== false) {
+            return 'aerial';
+        }
+        
+        if (strpos($text, 'interior') !== false || strpos($text, 'inside') !== false) {
+            return 'interior';
+        }
+        
+        if (strpos($text, 'land') !== false || strpos($text, 'acreage') !== false || strpos($text, 'field') !== false || strpos($text, 'pasture') !== false) {
+            return 'land';
+        }
+        
+        // Default to exterior for most property photos
+        return 'exterior';
     }
 
     /**

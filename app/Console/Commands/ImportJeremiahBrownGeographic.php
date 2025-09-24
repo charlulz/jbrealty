@@ -95,6 +95,44 @@ class ImportJeremiahBrownGeographic extends Command
         return Command::SUCCESS;
     }
 
+    /**
+     * Import photos for all Jeremiah Brown properties
+     */
+    private function importPhotosForProperties(bool $updateExisting): void
+    {
+        $properties = Property::where('api_source', 'flexmls')->get();
+        $totalPhotos = 0;
+        
+        $this->info("Found {$properties->count()} properties for photo import");
+        
+        $progressBar = $this->output->createProgressBar($properties->count());
+        $progressBar->setFormat('verbose');
+        $progressBar->start();
+        
+        foreach ($properties as $property) {
+            try {
+                $photosImported = $this->flexMlsService->importPropertyPhotos($property, $updateExisting);
+                $totalPhotos += $photosImported;
+                
+                if ($photosImported > 0) {
+                    $this->line("\n   ✅ {$property->title}: {$photosImported} photos imported");
+                }
+                
+                $progressBar->advance();
+                
+                // Small delay to be respectful to the API
+                usleep(500000); // 0.5 second delay
+                
+            } catch (\Exception $e) {
+                $this->error("\n   ❌ Failed to import photos for {$property->title}: " . $e->getMessage());
+                $progressBar->advance();
+            }
+        }
+        
+        $progressBar->finish();
+        $this->info("\n\n📸 Photo import completed: {$totalPhotos} total photos imported");
+    }
+
     private function searchGeographicAreas(): array
     {
         $baseUrl = config('services.flexmls.base_url');
