@@ -4,8 +4,10 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
-    // Get first 3 properties that have images for featured section
-    $featuredProperties = \App\Models\Property::has('images')
+    // Get first 3 available properties that have images for featured section
+    $featuredProperties = \App\Models\Property::published()
+        ->available() // Only show active and pending properties, not sold ones
+        ->has('images')
         ->with(['images' => function ($query) {
             $query->orderBy('is_primary', 'desc')->orderBy('sort_order');
         }])
