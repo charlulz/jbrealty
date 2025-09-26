@@ -507,7 +507,7 @@ class FlexMlsApiService
             'description' => $this->cleanDescription($data['PublicRemarks'] ?? ''),
             'mls_number' => $data['ListingId'] ?? $data['MlsNumber'] ?? null,
             'status' => $this->mapMlsStatus($data['MlsStatus'] ?? 'Active'),
-            'property_type' => $this->mapPropertyType($data['PropertyType'] ?? 'Residential'),
+            'property_type' => $this->mapPropertyType($data['PropertySubType'] ?? $data['PropertyType'] ?? 'Residential'),
             'price' => $this->parsePrice($data['ListPrice'] ?? 0),
             'price_per_acre' => $this->calculatePricePerAcre(
                 $data['ListPrice'] ?? 0,
@@ -579,24 +579,39 @@ class FlexMlsApiService
     private function mapPropertyType(string $type): string
     {
         $typeMap = [
+            // Residential properties
             'Single Family Residence' => 'residential',
             'Single Family' => 'residential',
             'Residential' => 'residential',
-            'Farm' => 'farms',
-            'Farm/Ranch' => 'farms',
-            'Agriculture' => 'farms',
-            'Land' => 'hunting',
-            'Vacant Land' => 'hunting',
-            'Unimproved Land' => 'hunting',
-            'Commercial' => 'commercial',
-            'Ranch' => 'ranches',
-            'Waterfront' => 'waterfront',
             'Mobile Home' => 'residential',
             'Condo' => 'residential',
             'Townhouse' => 'residential',
+            
+            // Farm properties  
+            'Farm' => 'farms',
+            'Farm/Ranch' => 'farms',
+            'Agriculture' => 'farms',
+            
+            // Land/Hunting properties
+            'Land' => 'hunting',
+            'Vacant Land' => 'hunting',
+            'Unimproved Land' => 'hunting',
+            
+            // Mixed use and other
+            'Mixed Use' => 'commercial',
+            'Commercial' => 'commercial',
+            'Ranch' => 'ranches',
+            'Waterfront' => 'waterfront',
+            
+            // MLS PropertyType codes (fallback for single letters)
+            'A' => 'hunting', // Usually Acreage, but PropertySubType should override
+            'C' => 'commercial', // Commercial
+            'D' => 'commercial', // Usually Mixed Use
+            'G' => 'farms', // Usually Farm/Agricultural
+            'R' => 'residential', // Residential
         ];
 
-        return $typeMap[$type] ?? 'residential';
+        return $typeMap[$type] ?? 'hunting'; // Default to hunting for land properties
     }
 
     private function parsePrice($price): float
