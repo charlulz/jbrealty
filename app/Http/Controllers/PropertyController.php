@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Property;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PropertyController extends Controller
 {
@@ -74,7 +75,39 @@ class PropertyController extends Controller
             ->limit(3)
             ->get();
 
-        return view('properties.show', compact('property', 'similarProperties'));
+        // Prepare property-specific metadata for social sharing
+        $primaryImage = $property->images()->where('is_primary', true)->first() 
+                       ?? $property->images()->orderBy('sort_order')->first();
+        
+        $metadata = [
+            'title' => $property->title . ' - JB Land & Home Realty',
+            'description' => $property->description 
+                ? Str::limit(strip_tags($property->description), 300, '...') 
+                : "Premium {$property->total_acres}± acre property in {$property->city}, KY. {$property->formatted_price}. Expert guidance from Jeremiah Brown at JB Land & Home Realty.",
+            'keywords' => implode(', ', array_filter([
+                $property->city . ' land for sale',
+                $property->county . ' property',
+                $property->property_type . ' Kentucky',
+                'hunting land',
+                'rural property',
+                'Jeremiah Brown realtor',
+                'JB Land Home Realty',
+                $property->total_acres . ' acres'
+            ])),
+            'ogTitle' => $property->title,
+            'ogDescription' => $property->description 
+                ? Str::limit(strip_tags($property->description), 200, '...') 
+                : "Exceptional {$property->total_acres}± acre property in {$property->city}, Kentucky. Priced at {$property->formatted_price}.",
+            'ogImage' => $primaryImage?->url ?? asset('images/logo.png'),
+            'ogImageAlt' => $primaryImage?->alt_text ?? "Property Photo: {$property->title}",
+            'ogType' => 'article',
+            'canonical' => "https://jblandandhome.com" . request()->path(),
+            'ogUrl' => "https://jblandandhome.com" . request()->path(),
+            'twitterTitle' => $property->title . ' - Premium Kentucky Land',
+            'twitterDescription' => "{$property->total_acres}± acres in {$property->city}, KY • {$property->formatted_price} • Expert guidance from Jeremiah Brown",
+        ];
+
+        return view('properties.show', compact('property', 'similarProperties'))->with($metadata);
     }
 
     /**

@@ -1,4 +1,87 @@
 @extends('components.layouts.guest')
+
+@push('head')
+<script type="application/ld+json">
+@php
+  $images = $property->images ? $property->images->take(5)->pluck('url')->values()->all() : [];
+
+  $schema = [
+    '@context' => 'https://schema.org',
+    '@type'    => 'RealEstateListing',
+    'name'        => $property->title,
+    'description' => strip_tags($property->description),
+    'url'         => request()->url(),
+    'identifier'  => $property->mls_number ?? (string) $property->id,
+    'datePosted'  => optional($property->created_at)->toIso8601String(),
+    // Only add image if we have any
+    'image'       => !empty($images) ? $images : null,
+    'offers' => [
+      '@type'         => 'Offer',
+      'price'         => is_numeric($property->price) ? (float) $property->price : (float) preg_replace('/[^\d.]/', '', (string) $property->price),
+      'priceCurrency' => 'USD',
+      'availability'  => 'https://schema.org/' . (
+        $property->status === 'active'  ? 'InStock' :
+        ($property->status === 'pending' ? 'PreOrder' : 'OutOfStock')
+      ),
+      'validFrom'     => optional($property->created_at)->toIso8601String(),
+    ],
+    'address' => [
+      '@type'           => 'PostalAddress',
+      'streetAddress'   => $property->address,
+      'addressLocality' => $property->city,
+      'addressRegion'   => $property->state,
+      'postalCode'      => $property->zip,
+      'addressCountry'  => 'US',
+    ],
+    'geo' => [
+      '@type'    => 'GeoCoordinates',
+      'latitude'  => ($property->latitude  !== null && $property->latitude  !== '') ? (float) $property->latitude  : null,
+      'longitude' => ($property->longitude !== null && $property->longitude !== '') ? (float) $property->longitude : null,
+    ],
+    'additionalProperty' => array_values(array_filter([
+      [
+        '@type' => 'PropertyValue',
+        'name'  => 'Total Acres',
+        'value' => $property->total_acres,
+      ],
+      [
+        '@type' => 'PropertyValue',
+        'name'  => 'Property Type',
+        'value' => ucfirst((string) $property->property_type),
+      ],
+      [
+        '@type' => 'PropertyValue',
+        'name'  => 'County',
+        'value' => $property->county,
+      ],
+      $property->mls_number ? [
+        '@type' => 'PropertyValue',
+        'name'  => 'MLS Number',
+        'value' => $property->mls_number,
+      ] : null,
+    ])),
+    'agent' => [
+      '@type' => 'RealEstateAgent',
+      'name'  => 'Jeremiah Brown',
+      'telephone' => '859-473-2259',
+      'email'     => 'jblandandhomerealty@gmail.com',
+      'image'     => asset('images/Jeremiah_Headshot.JPEG'),
+      'worksFor'  => [
+        '@type' => 'Organization',
+        'name'  => 'JB Land & Home Realty',
+        'url'   => 'https://jblandandhome.com',
+        'logo'  => asset('images/logo.png'),
+      ],
+    ],
+  ];
+
+  // Remove nulls so you don’t emit invalid JSON-LD fields
+  $schema = array_filter($schema, fn($v) => $v !== null);
+@endphp
+{!! json_encode($schema, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}
+</script>
+@endpush
+
 @section('content')
 
 <!-- Premium Property Hero Section -->

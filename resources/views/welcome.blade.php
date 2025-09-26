@@ -1,90 +1,91 @@
 @extends('components.layouts.guest')
 
-{{-- @push('head')
-<!-- JSON-LD Structured Data for SEO -->
+@push('head')
 <script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "RealEstateAgent",
-    "name": "JB Land & Home Realty",
-    "url": "https://jblandandhome.com",
-    "logo": "{{ asset('images/logo.png') }}",
-    "description": "Premium land and rural properties in Kentucky. Specializing in hunting land, farms, ranches, and recreational properties.",
-    "address": {
-        "@type": "PostalAddress",
-        "addressRegion": "KY",
-        "addressCountry": "US"
-    },
-    "employee": {
-        "@type": "Person",
-        "name": "Jeremiah Brown",
-        "jobTitle": "Real Estate Agent",
-        "image": "{{ asset('images/Jeremiah_Headshot.JPEG') }}"
-    },
-    "areaServed": [
-        {
-            "@type": "Place",
-            "name": "Carter County, Kentucky"
-        },
-        {
-            "@type": "Place", 
-            "name": "Fleming County, Kentucky"
-        },
-        {
-            "@type": "Place",
-            "name": "Lewis County, Kentucky"
-        },
-        {
-            "@type": "Place",
-            "name": "Rowan County, Kentucky"
-        }
-    ],
-    "serviceType": [
-        "Land Sales",
-        "Rural Property Sales", 
-        "Hunting Land",
-        "Farm Sales",
-        "Ranch Sales",
-        "Recreational Property"
-    ],
-    @if($featuredProperties->count() > 0)
-    "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Featured Properties",
-        "itemListElement": [
-            @foreach($featuredProperties->take(3) as $index => $property)
-            {
-                "@type": "Offer",
-                "itemOffered": {
-                    "@type": "RealEstateListing",
-                    "name": "{{ $property->title }}",
-                    "description": "{{ Str::limit($property->description, 100) }}",
-                    "price": "{{ $property->price }}",
-                    "priceCurrency": "USD",
-                    "address": {
-                        "@type": "PostalAddress",
-                        "streetAddress": "{{ $property->address }}",
-                        "addressLocality": "{{ $property->city }}",
-                        "addressRegion": "{{ $property->state }}",
-                        "postalCode": "{{ $property->zip }}"
-                    },
-                    @if($property->images->first())
-                    "image": "{{ $property->images->first()->url }}",
-                    @endif
-                    "url": "{{ route('properties.show', $property) }}"
-                }
-            }{{ $loop->last ? '' : ',' }}
-            @endforeach
-        ]
-    },
-    @endif
-    "sameAs": [
-        "https://facebook.com/jblandandhome",
-        "https://instagram.com/jblandandhome"
-    ]
-}
+@php
+    use Illuminate\Support\Str;
+
+    $offers = [];
+    if (isset($featuredProperties) && $featuredProperties->count() > 0) {
+        $offers = $featuredProperties->take(3)->map(function ($property) {
+            $price = is_numeric($property->price)
+                ? (float) $property->price
+                : (float) preg_replace('/[^\d.]/', '', (string) $property->price);
+
+            $item = [
+                '@type'        => 'RealEstateListing',
+                'name'         => (string) $property->title,
+                'description'  => Str::limit(strip_tags((string) $property->description), 100),
+                'price'        => $price,
+                'priceCurrency'=> 'USD',
+                'address'      => [
+                    '@type'           => 'PostalAddress',
+                    'streetAddress'   => (string) $property->address,
+                    'addressLocality' => (string) $property->city,
+                    'addressRegion'   => (string) $property->state,
+                    'postalCode'      => (string) $property->zip,
+                ],
+                'url'          => route('properties.show', $property),
+            ];
+
+            $firstImage = optional($property->images->first())->url ?? null;
+            if (!empty($firstImage)) {
+                $item['image'] = $firstImage;
+            }
+
+            return [
+                '@type'       => 'Offer',
+                'itemOffered' => $item,
+            ];
+        })->values()->all();
+    }
+
+    $schema = array_filter([
+        '@context'    => 'https://schema.org',
+        '@type'       => 'RealEstateAgent',
+        'name'        => 'JB Land & Home Realty',
+        'url'         => 'https://jblandandhome.com',
+        'logo'        => asset('images/logo.png'),
+        'description' => 'Premium land and rural properties in Kentucky. Specializing in hunting land, farms, ranches, and recreational properties.',
+        'address'     => [
+            '@type'          => 'PostalAddress',
+            'addressRegion'  => 'KY',
+            'addressCountry' => 'US',
+        ],
+        'employee'    => [
+            '@type'    => 'Person',
+            'name'     => 'Jeremiah Brown',
+            'jobTitle' => 'Real Estate Agent',
+            'image'    => asset('images/Jeremiah_Headshot.JPEG'),
+        ],
+        'areaServed'  => [
+            ['@type' => 'Place', 'name' => 'Carter County, Kentucky'],
+            ['@type' => 'Place', 'name' => 'Fleming County, Kentucky'],
+            ['@type' => 'Place', 'name' => 'Lewis County, Kentucky'],
+            ['@type' => 'Place', 'name' => 'Rowan County, Kentucky'],
+        ],
+        'serviceType' => [
+            'Land Sales',
+            'Rural Property Sales',
+            'Hunting Land',
+            'Farm Sales',
+            'Ranch Sales',
+            'Recreational Property',
+        ],
+        'hasOfferCatalog' => !empty($offers) ? [
+            '@type'           => 'OfferCatalog',
+            'name'            => 'Featured Properties',
+            'itemListElement' => $offers,
+        ] : null,
+        'sameAs' => [
+            'https://facebook.com/jblandandhome',
+            'https://instagram.com/jblandandhome',
+        ],
+    ], fn ($v) => $v !== null);
+@endphp
+{!! json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 </script>
-@endpush --}}
+@endpush
 
 @section('content')
 <!-- Include Hero Section -->
