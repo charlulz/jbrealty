@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,17 +13,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // Create admin user for JB Land & Home Realty
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'JB Land & Home Admin',
+            'email' => 'admin@jblandandhome.com',
+            'password' => Hash::make('JbLand2025!@!@'), // Change this in production!
+            'email_verified_at' => now(),
         ]);
 
-        // Seed property features
-        $this->call(FeatureSeeder::class);
-        
-        // Seed sample properties
-        $this->call(PropertySeeder::class);
+        $this->command->info('✅ Created admin user: admin@jblandandhome.com');
     }
 }

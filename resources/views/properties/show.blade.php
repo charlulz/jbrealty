@@ -399,7 +399,7 @@
                         </div>
                         <div class="flex justify-between items-center py-2 border-b border-white/10">
                             <span class="text-white/70">Days on Market:</span>
-                            <span class="text-white font-medium">{{ $property->created_at->diffInDays() }}</span>
+                            <span class="text-white font-medium">{{ (int) $property->created_at->diffInDays() }}</span>
                         </div>
                         <div class="flex justify-between items-center py-2 border-b border-white/10">
                             <span class="text-white/70">Views:</span>

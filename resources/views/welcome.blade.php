@@ -1,4 +1,91 @@
 @extends('components.layouts.guest')
+
+@push('head')
+<!-- JSON-LD Structured Data for SEO -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "RealEstateAgent",
+    "name": "JB Land & Home Realty",
+    "url": "https://jblandandhome.com",
+    "logo": "{{ asset('images/logo.png') }}",
+    "description": "Premium land and rural properties in Kentucky. Specializing in hunting land, farms, ranches, and recreational properties.",
+    "address": {
+        "@type": "PostalAddress",
+        "addressRegion": "KY",
+        "addressCountry": "US"
+    },
+    "employee": {
+        "@type": "Person",
+        "name": "Jeremiah Brown",
+        "jobTitle": "Real Estate Agent",
+        "image": "{{ asset('images/Jeremiah_Headshot.JPEG') }}"
+    },
+    "areaServed": [
+        {
+            "@type": "Place",
+            "name": "Carter County, Kentucky"
+        },
+        {
+            "@type": "Place", 
+            "name": "Fleming County, Kentucky"
+        },
+        {
+            "@type": "Place",
+            "name": "Lewis County, Kentucky"
+        },
+        {
+            "@type": "Place",
+            "name": "Rowan County, Kentucky"
+        }
+    ],
+    "serviceType": [
+        "Land Sales",
+        "Rural Property Sales", 
+        "Hunting Land",
+        "Farm Sales",
+        "Ranch Sales",
+        "Recreational Property"
+    ],
+    @if($featuredProperties->count() > 0)
+    "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Featured Properties",
+        "itemListElement": [
+            @foreach($featuredProperties->take(3) as $index => $property)
+            {
+                "@type": "Offer",
+                "itemOffered": {
+                    "@type": "RealEstateListing",
+                    "name": "{{ $property->title }}",
+                    "description": "{{ Str::limit($property->description, 100) }}",
+                    "price": "{{ $property->price }}",
+                    "priceCurrency": "USD",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "streetAddress": "{{ $property->address }}",
+                        "addressLocality": "{{ $property->city }}",
+                        "addressRegion": "{{ $property->state }}",
+                        "postalCode": "{{ $property->zip }}"
+                    },
+                    @if($property->images->first())
+                    "image": "{{ $property->images->first()->url }}",
+                    @endif
+                    "url": "{{ route('properties.show', $property) }}"
+                }
+            }{{ $loop->last ? '' : ',' }}
+            @endforeach
+        ]
+    },
+    @endif
+    "sameAs": [
+        "https://facebook.com/jblandandhome",
+        "https://instagram.com/jblandandhome"
+    ]
+}
+</script>
+@endpush
+
 @section('content')
 <!-- Include Hero Section -->
 @include('components.hero-section')
@@ -146,7 +233,7 @@
                         </svg>
                     </div>
                     <h3 class="text-xl font-serif text-white mb-2">Featured Properties Coming Soon</h3>
-                    <p class="text-white/70 text-sm">We're currently preparing our featured properties with professional photography.</p>
+                    <p class="text-white/70 text-sm">No properties are currently featured. Check back soon for our handpicked selections.</p>
                 </div>
             </div>
         @endif

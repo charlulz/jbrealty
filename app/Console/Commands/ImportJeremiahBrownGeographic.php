@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Property;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ImportJeremiahBrownGeographic extends Command
 {
@@ -335,13 +336,18 @@ class ImportJeremiahBrownGeographic extends Command
                 ];
 
                 if ($existingProperty) {
+                    // Don't modify created_at for existing properties
                     $existingProperty->update($propertyData);
                     $results['updated']++;
                     $this->line("     ✅ Updated: {$mlsNumber}");
                 } else {
+                    // Set created_at to the original listing date for new properties
+                    $originalListingDate = $this->parseOriginalListingDate($standardFields);
+                    $propertyData['created_at'] = $originalListingDate;
+                    
                     Property::create($propertyData);
                     $results['created']++;
-                    $this->line("     ✅ Created: {$mlsNumber}");
+                    $this->line("     ✅ Created: {$mlsNumber} (listed: {$originalListingDate->format('Y-m-d')})");
                 }
 
             } catch (\Exception $e) {
@@ -448,5 +454,30 @@ class ImportJeremiahBrownGeographic extends Command
         }
 
         return date('Y-m-d');
+    }
+
+    private function parseOriginalListingDate(array $standardFields): Carbon
+    {
+        // Priority order for original listing date
+        $dateFields = [
+            'OriginalOnMarketTimestamp',
+            'OnMarketDate',
+            'OnMarketTimestamp',
+            'ListingContractDate',
+            'OnMarketContractDate',
+        ];
+
+        foreach ($dateFields as $field) {
+            if (!empty($standardFields[$field])) {
+                $date = $standardFields[$field];
+
+                if (is_string($date) && strtotime($date) !== false) {
+                    return Carbon::parse($date);
+                }
+            }
+        }
+
+        // Fallback to current date if no listing date found
+        return Carbon::now();
     }
 }

@@ -17,7 +17,8 @@
                 </flux:navlist.group>
 
                 <flux:navlist.group :heading="__('Properties')" class="grid">
-                    <flux:navlist.item icon="building-office" :href="route('properties.index')" :current="request()->routeIs('properties.*')" wire:navigate>{{ __('Browse Properties') }}</flux:navlist.item>
+                    <flux:navlist.item icon="building-office" :href="route('properties.index')" :current="request()->routeIs('properties.index')" wire:navigate>{{ __('Browse Properties') }}</flux:navlist.item>
+                    <flux:navlist.item icon="cog" :href="route('admin.properties.index')" :current="request()->routeIs('admin.properties.index')" wire:navigate>{{ __('Manage Properties') }}</flux:navlist.item>
                     <flux:navlist.item icon="squares-plus" :href="route('admin.properties.create')" :current="request()->routeIs('admin.properties.create')" wire:navigate>{{ __('Add Property') }}</flux:navlist.item>
                     <flux:navlist.item icon="arrow-up-tray" :href="route('admin.import.index')" :current="request()->routeIs('admin.import.*')" wire:navigate>{{ __('Import Properties') }}</flux:navlist.item>
                     <flux:navlist.item icon="chat-bubble-bottom-center-text" href="#" wire:navigate>{{ __('Inquiries') }}</flux:navlist.item>
