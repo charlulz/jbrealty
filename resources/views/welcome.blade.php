@@ -1,6 +1,6 @@
 @extends('components.layouts.guest')
 
-@push('head')
+{{-- @push('head')
 <!-- JSON-LD Structured Data for SEO -->
 <script type="application/ld+json">
 {
@@ -84,7 +84,7 @@
     ]
 }
 </script>
-@endpush
+@endpush --}}
 
 @section('content')
 <!-- Include Hero Section -->
