@@ -41,7 +41,7 @@ class SyncAllPropertyData extends Command
             if ($dryRun) {
                 $this->warn('   ⚠️ Skipping import in dry-run mode (import command doesn\'t support dry-run)');
             } else {
-                $importResult = $this->call('import:jeremiah-brown-geographic');
+                $importResult = $this->call('properties:import-jeremiah-geographic');
                 
                 if ($importResult !== 0) {
                     $this->error('❌ Property import failed! Aborting sync.');
