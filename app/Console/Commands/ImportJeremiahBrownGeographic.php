@@ -323,7 +323,7 @@ class ImportJeremiahBrownGeographic extends Command
                     'zip' => $standardFields['PostalCode'] ?? '',
                     'latitude' => $standardFields['Latitude'] ?? null,
                     'longitude' => $standardFields['Longitude'] ?? null,
-                    'property_type' => $this->mapPropertyType($standardFields['PropertyType'] ?? ''),
+                    'property_type' => $this->mapPropertyType($standardFields['PropertyType'] ?? '', $this->parseAcres($standardFields)),
                     'status' => $this->mapMlsStatus($standardFields['MlsStatus'] ?? ''),
                     'bedrooms' => $standardFields['BedsTotal'] ?? null,
                     'bathrooms' => $standardFields['BathroomsTotalInteger'] ?? null,
@@ -391,7 +391,7 @@ class ImportJeremiahBrownGeographic extends Command
         return 0.0;
     }
 
-    private function mapPropertyType(string $type): string
+    private function mapPropertyType(string $type, float $acres = 0): string
     {
         $typeMap = [
             'R' => 'residential',
@@ -409,8 +409,14 @@ class ImportJeremiahBrownGeographic extends Command
 
         // Ensure valid enum value
         $validTypes = ['hunting', 'farms', 'ranches', 'residential', 'commercial', 'waterfront', 'timber', 'development', 'investment'];
-
-        return in_array($mapped, $validTypes) ? $mapped : 'farms';
+        $finalType = in_array($mapped, $validTypes) ? $mapped : 'farms';
+        
+        // Override hunting/land properties with less than 25 acres to residential
+        if (($finalType === 'hunting' || $finalType === 'farms' || strtolower($type) === 'land' || strtolower($type) === 'acreage') && $acres > 0 && $acres < 25) {
+            return 'residential';
+        }
+        
+        return $finalType;
     }
 
     private function mapMlsStatus(string $status): string

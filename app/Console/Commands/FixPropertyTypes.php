@@ -67,7 +67,8 @@ class FixPropertyTypes extends Command
 
                 $standardFields = $apiData['StandardFields'];
                 $propertySubType = $standardFields['PropertySubType'] ?? $standardFields['PropertyType'] ?? 'Residential';
-                $newType = $this->mapPropertyType($propertySubType);
+                $acres = $this->parseAcres($standardFields);
+                $newType = $this->mapPropertyType($propertySubType, $acres);
                 $currentType = $property->property_type;
 
                 if ($newType !== $currentType) {
@@ -131,7 +132,20 @@ class FixPropertyTypes extends Command
         return Command::SUCCESS;
     }
 
-    private function mapPropertyType(string $type): string
+    private function parseAcres(array $standardFields): float
+    {
+        $acreFields = ['LotSizeAcres', 'TotalAcres', 'Acres', 'LotSizeArea'];
+
+        foreach ($acreFields as $field) {
+            if (isset($standardFields[$field]) && is_numeric($standardFields[$field])) {
+                return (float) $standardFields[$field];
+            }
+        }
+
+        return 0.0;
+    }
+
+    private function mapPropertyType(string $type, float $acres = 0): string
     {
         $typeMap = [
             // Residential properties
@@ -166,6 +180,13 @@ class FixPropertyTypes extends Command
             'R' => 'residential', // Residential
         ];
 
-        return $typeMap[$type] ?? 'hunting'; // Default to hunting for land properties
+        $mappedType = $typeMap[$type] ?? 'hunting'; // Default to hunting for land properties
+        
+        // Override hunting/land properties with less than 25 acres to residential
+        if (($mappedType === 'hunting' || $mappedType === 'farms' || strtolower($type) === 'land' || strtolower($type) === 'vacant land' || strtolower($type) === 'unimproved land') && $acres > 0 && $acres < 25) {
+            return 'residential';
+        }
+        
+        return $mappedType;
     }
 }

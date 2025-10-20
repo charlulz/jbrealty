@@ -211,7 +211,7 @@ class PropertyImportService
             'zip_code' => $record['zip_code'] ?? '',
             'latitude' => $record['latitude'] ?? null,
             'longitude' => $record['longitude'] ?? null,
-            'property_type' => $this->mapPropertyType($record['property_type'] ?? 'residential'),
+            'property_type' => $this->mapPropertyType($record['property_type'] ?? 'residential', $this->parseAcres($record['total_acres'] ?? $record['acres'] ?? 1)),
             'status' => 'active',
             'listing_agent_id' => 1, // Default to first user, adjust as needed
             'listing_date' => now(),
@@ -333,7 +333,7 @@ class PropertyImportService
         });
     }
 
-    private function mapPropertyType(string $type): string
+    private function mapPropertyType(string $type, float $acres = 0): string
     {
         $typeMap = [
             'single family' => 'residential',
@@ -350,7 +350,14 @@ class PropertyImportService
         ];
 
         $normalized = strtolower(trim($type));
-        return $typeMap[$normalized] ?? 'residential';
+        $mappedType = $typeMap[$normalized] ?? 'residential';
+        
+        // Override hunting/land properties with less than 25 acres to residential
+        if (($mappedType === 'hunting' || $normalized === 'land' || $normalized === 'vacant land' || $normalized === 'acreage') && $acres > 0 && $acres < 25) {
+            return 'residential';
+        }
+        
+        return $mappedType;
     }
 
     private function guessCounty(string $city): string

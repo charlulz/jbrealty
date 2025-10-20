@@ -507,7 +507,7 @@ class FlexMlsApiService
             'description' => $this->cleanDescription($data['PublicRemarks'] ?? ''),
             'mls_number' => $data['ListingId'] ?? $data['MlsNumber'] ?? null,
             'status' => $this->mapMlsStatus($data['MlsStatus'] ?? 'Active'),
-            'property_type' => $this->mapPropertyType($data['PropertySubType'] ?? $data['PropertyType'] ?? 'Residential'),
+            'property_type' => $this->mapPropertyType($data['PropertySubType'] ?? $data['PropertyType'] ?? 'Residential', $this->parseAcres($data['LotSizeAcres'] ?? null)),
             'price' => $this->parsePrice($data['ListPrice'] ?? 0),
             'price_per_acre' => $this->calculatePricePerAcre(
                 $data['ListPrice'] ?? 0,
@@ -576,7 +576,7 @@ class FlexMlsApiService
         return $statusMap[$status] ?? 'active';
     }
 
-    private function mapPropertyType(string $type): string
+    private function mapPropertyType(string $type, float $acres = 0): string
     {
         $typeMap = [
             // Residential properties
@@ -611,7 +611,14 @@ class FlexMlsApiService
             'R' => 'residential', // Residential
         ];
 
-        return $typeMap[$type] ?? 'hunting'; // Default to hunting for land properties
+        $mappedType = $typeMap[$type] ?? 'hunting'; // Default to hunting for land properties
+        
+        // Override hunting/land properties with less than 25 acres to residential
+        if (($mappedType === 'hunting' || $mappedType === 'farms' || strtolower($type) === 'land' || strtolower($type) === 'vacant land' || strtolower($type) === 'unimproved land') && $acres > 0 && $acres < 25) {
+            return 'residential';
+        }
+        
+        return $mappedType;
     }
 
     private function parsePrice($price): float
