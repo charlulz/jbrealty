@@ -15,6 +15,14 @@ Route::get('/', function () {
         ->orderBy('created_at', 'desc')
         ->get(); // Get all featured properties (no limit)
     
+    // Get available property types for contact form
+    $availableTypes = \App\Models\Property::published()
+        ->available()
+        ->selectRaw('property_type, COUNT(*) as count')
+        ->groupBy('property_type')
+        ->orderByDesc('count')
+        ->get();
+    
     // Prepare homepage metadata for social sharing
     $metadata = [
         'title' => 'JB Land & Home Realty - Premium Kentucky Land & Rural Properties',
@@ -28,7 +36,7 @@ Route::get('/', function () {
         'ogUrl' => 'https://jblandandhome.com',
     ];
     
-    return view('welcome', compact('featuredProperties'))->with($metadata);
+    return view('welcome', compact('featuredProperties', 'availableTypes'))->with($metadata);
 })->name('home');
 
 Route::get('/agents', function () {

@@ -211,7 +211,7 @@ class PropertyImportService
             'zip_code' => $record['zip_code'] ?? '',
             'latitude' => $record['latitude'] ?? null,
             'longitude' => $record['longitude'] ?? null,
-            'property_type' => $this->mapPropertyType($record['property_type'] ?? 'residential', $this->parseAcres($record['total_acres'] ?? $record['acres'] ?? 1)),
+            'property_type' => $this->mapPropertyType($record['property_type'] ?? 'Single Family Residence'),
             'status' => 'active',
             'listing_agent_id' => 1, // Default to first user, adjust as needed
             'listing_date' => now(),
@@ -333,31 +333,13 @@ class PropertyImportService
         });
     }
 
-    private function mapPropertyType(string $type, float $acres = 0): string
+    private function mapPropertyType(string $type): string
     {
-        $typeMap = [
-            'single family' => 'residential',
-            'house' => 'residential',
-            'condo' => 'residential',
-            'townhouse' => 'residential',
-            'land' => 'hunting',
-            'farm' => 'farms',
-            'ranch' => 'ranches',
-            'commercial' => 'commercial',
-            'vacant land' => 'hunting',
-            'acreage' => 'hunting',
-            'waterfront' => 'waterfront',
-        ];
-
-        $normalized = strtolower(trim($type));
-        $mappedType = $typeMap[$normalized] ?? 'residential';
+        // Use MLS property types directly - no complex mapping needed
+        $normalized = trim($type);
         
-        // Override hunting/land properties with less than 25 acres to residential
-        if (($mappedType === 'hunting' || $normalized === 'land' || $normalized === 'vacant land' || $normalized === 'acreage') && $acres > 0 && $acres < 25) {
-            return 'residential';
-        }
-        
-        return $mappedType;
+        // Return the MLS property type as-is, with fallback for unknown types
+        return $normalized ?: 'Single Family Residence';
     }
 
     private function guessCounty(string $city): string

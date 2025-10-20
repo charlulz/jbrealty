@@ -35,12 +35,9 @@
                     <div class="relative">
                         <select wire:model="propertyType" class="w-full bg-black/30 border border-white/10 rounded-2xl px-5 py-4 text-white/90 focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary/30 backdrop-blur-sm transition-all duration-300 hover:border-white/20 hover:bg-black/40 appearance-none cursor-pointer font-light">
                             <option value="">All Properties</option>
-                            <option value="hunting">Hunting Land</option>
-                            <option value="farms">Farms</option>
-                            <option value="ranches">Ranches</option>
-                            <option value="residential">Residential</option>
-                            <option value="commercial">Commercial</option>
-                            <option value="waterfront">Waterfront</option>
+                            @foreach($availableTypes as $type)
+                                <option value="{{ $type->property_type }}">{{ $type->property_type }} ({{ $type->count }})</option>
+                            @endforeach
                         </select>
                         <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
                             <svg class="h-4 w-4 text-secondary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">

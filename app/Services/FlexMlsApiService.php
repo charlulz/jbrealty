@@ -507,7 +507,7 @@ class FlexMlsApiService
             'description' => $this->cleanDescription($data['PublicRemarks'] ?? ''),
             'mls_number' => $data['ListingId'] ?? $data['MlsNumber'] ?? null,
             'status' => $this->mapMlsStatus($data['MlsStatus'] ?? 'Active'),
-            'property_type' => $this->mapPropertyType($data['PropertySubType'] ?? $data['PropertyType'] ?? 'Residential', $this->parseAcres($data['LotSizeAcres'] ?? null)),
+            'property_type' => $this->mapPropertyType($data['PropertySubType'] ?? $data['PropertyType'] ?? 'Single Family Residence'),
             'price' => $this->parsePrice($data['ListPrice'] ?? 0),
             'price_per_acre' => $this->calculatePricePerAcre(
                 $data['ListPrice'] ?? 0,
@@ -576,49 +576,13 @@ class FlexMlsApiService
         return $statusMap[$status] ?? 'active';
     }
 
-    private function mapPropertyType(string $type, float $acres = 0): string
+    private function mapPropertyType(string $type): string
     {
-        $typeMap = [
-            // Residential properties
-            'Single Family Residence' => 'residential',
-            'Single Family' => 'residential',
-            'Residential' => 'residential',
-            'Mobile Home' => 'residential',
-            'Condo' => 'residential',
-            'Townhouse' => 'residential',
-            
-            // Farm properties  
-            'Farm' => 'farms',
-            'Farm/Ranch' => 'farms',
-            'Agriculture' => 'farms',
-            
-            // Land/Hunting properties
-            'Land' => 'hunting',
-            'Vacant Land' => 'hunting',
-            'Unimproved Land' => 'hunting',
-            
-            // Mixed use and other
-            'Mixed Use' => 'commercial',
-            'Commercial' => 'commercial',
-            'Ranch' => 'ranches',
-            'Waterfront' => 'waterfront',
-            
-            // MLS PropertyType codes (fallback for single letters)
-            'A' => 'hunting', // Usually Acreage, but PropertySubType should override
-            'C' => 'commercial', // Commercial
-            'D' => 'commercial', // Usually Mixed Use
-            'G' => 'farms', // Usually Farm/Agricultural
-            'R' => 'residential', // Residential
-        ];
-
-        $mappedType = $typeMap[$type] ?? 'hunting'; // Default to hunting for land properties
+        // Use MLS PropertySubType directly - no complex mapping needed
+        $normalized = trim($type);
         
-        // Override hunting/land properties with less than 25 acres to residential
-        if (($mappedType === 'hunting' || $mappedType === 'farms' || strtolower($type) === 'land' || strtolower($type) === 'vacant land' || strtolower($type) === 'unimproved land') && $acres > 0 && $acres < 25) {
-            return 'residential';
-        }
-        
-        return $mappedType;
+        // Return the MLS property type as-is, with fallback for unknown types
+        return $normalized ?: 'Single Family Residence';
     }
 
     private function parsePrice($price): float

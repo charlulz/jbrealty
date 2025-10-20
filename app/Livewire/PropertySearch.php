@@ -13,6 +13,8 @@ class PropertySearch extends Component
     public $acreage = 'Any Size';
     public $advancedSearchOpen = false;
     
+    public $availableTypes = [];
+    
     // Advanced search features
     public $features = [
         'waterAccess' => false,
@@ -38,6 +40,17 @@ class PropertySearch extends Component
     
     public $searchResults = [];
     public $hasSearched = false;
+
+    public function mount()
+    {
+        // Get available property types from database
+        $this->availableTypes = Property::published()
+            ->available()
+            ->selectRaw('property_type, COUNT(*) as count')
+            ->groupBy('property_type')
+            ->orderByDesc('count')
+            ->get();
+    }
 
     public function toggleAdvancedSearch()
     {

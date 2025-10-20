@@ -33,7 +33,15 @@ class PropertyController extends Controller
             ->orderByDesc('created_at')
             ->paginate(12);
 
-        return view('properties.index', compact('properties'));
+        // Get available property types for filter navigation
+        $availableTypes = Property::published()
+            ->available()
+            ->selectRaw('property_type, COUNT(*) as count')
+            ->groupBy('property_type')
+            ->orderByDesc('count')
+            ->get();
+
+        return view('properties.index', compact('properties', 'availableTypes'));
     }
 
     /**

@@ -66,9 +66,8 @@ class FixPropertyTypes extends Command
                 }
 
                 $standardFields = $apiData['StandardFields'];
-                $propertySubType = $standardFields['PropertySubType'] ?? $standardFields['PropertyType'] ?? 'Residential';
-                $acres = $this->parseAcres($standardFields);
-                $newType = $this->mapPropertyType($propertySubType, $acres);
+                $propertySubType = $standardFields['PropertySubType'] ?? $standardFields['PropertyType'] ?? 'Single Family Residence';
+                $newType = $this->mapPropertyType($propertySubType);
                 $currentType = $property->property_type;
 
                 if ($newType !== $currentType) {
@@ -132,61 +131,12 @@ class FixPropertyTypes extends Command
         return Command::SUCCESS;
     }
 
-    private function parseAcres(array $standardFields): float
+    private function mapPropertyType(string $type): string
     {
-        $acreFields = ['LotSizeAcres', 'TotalAcres', 'Acres', 'LotSizeArea'];
-
-        foreach ($acreFields as $field) {
-            if (isset($standardFields[$field]) && is_numeric($standardFields[$field])) {
-                return (float) $standardFields[$field];
-            }
-        }
-
-        return 0.0;
-    }
-
-    private function mapPropertyType(string $type, float $acres = 0): string
-    {
-        $typeMap = [
-            // Residential properties
-            'Single Family Residence' => 'residential',
-            'Single Family' => 'residential',
-            'Residential' => 'residential',
-            'Mobile Home' => 'residential',
-            'Condo' => 'residential',
-            'Townhouse' => 'residential',
-            
-            // Farm properties  
-            'Farm' => 'farms',
-            'Farm/Ranch' => 'farms',
-            'Agriculture' => 'farms',
-            
-            // Land/Hunting properties
-            'Land' => 'hunting',
-            'Vacant Land' => 'hunting',
-            'Unimproved Land' => 'hunting',
-            
-            // Mixed use and other
-            'Mixed Use' => 'commercial',
-            'Commercial' => 'commercial',
-            'Ranch' => 'ranches',
-            'Waterfront' => 'waterfront',
-            
-            // MLS PropertyType codes (fallback for single letters)
-            'A' => 'hunting', // Usually Acreage, but PropertySubType should override
-            'C' => 'commercial', // Commercial
-            'D' => 'commercial', // Usually Mixed Use
-            'G' => 'farms', // Usually Farm/Agricultural
-            'R' => 'residential', // Residential
-        ];
-
-        $mappedType = $typeMap[$type] ?? 'hunting'; // Default to hunting for land properties
+        // Use MLS PropertySubType directly - no complex mapping needed
+        $normalized = trim($type);
         
-        // Override hunting/land properties with less than 25 acres to residential
-        if (($mappedType === 'hunting' || $mappedType === 'farms' || strtolower($type) === 'land' || strtolower($type) === 'vacant land' || strtolower($type) === 'unimproved land') && $acres > 0 && $acres < 25) {
-            return 'residential';
-        }
-        
-        return $mappedType;
+        // Return the MLS property type as-is, with fallback for unknown types
+        return $normalized ?: 'Single Family Residence';
     }
 }

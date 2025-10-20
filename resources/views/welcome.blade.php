@@ -705,12 +705,9 @@
                                     style="background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'rgba(255,255,255,0.6)\' stroke-width=\'2\'><polyline points=\'6,9 12,15 18,9\'></polyline></svg>'); background-position: right 1rem center; background-size: 1rem;"
                                 >
                                     <option value="">Select property type</option>
-                                    <option value="hunting">Hunting Land</option>
-                                    <option value="farm">Farm & Agriculture</option>
-                                    <option value="waterfront">Waterfront Property</option>
-                                    <option value="residential">Residential Home</option>
-                                    <option value="commercial">Commercial Property</option>
-                                    <option value="other">Other</option>
+                                    @foreach($availableTypes as $type)
+                                        <option value="{{ $type->property_type }}">{{ $type->property_type }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
