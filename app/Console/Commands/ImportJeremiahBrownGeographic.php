@@ -167,6 +167,7 @@ class ImportJeremiahBrownGeographic extends Command
             // Counties (using simplified filter that works)
             'Fleming County' => ['type' => 'county', 'filter' => "CountyOrParish Eq 'Fleming County'"],
             'Lewis County' => ['type' => 'county', 'filter' => "CountyOrParish Eq 'Lewis County'"],
+            'Johnson County' => ['type' => 'county', 'filter' => "CountyOrParish Eq 'Johnson County'"],
         ];
 
         foreach ($searchAreas as $areaName => $areaData) {
