@@ -6,16 +6,20 @@ use Livewire\Volt\Volt;
 
 Route::middleware('guest')->group(function () {
     Volt::route('login', 'auth.login')
-        ->name('login');
+        ->name('login')
+        ->methods(['GET', 'POST']);
 
     Volt::route('register', 'auth.register')
-        ->name('register');
+        ->name('register')
+        ->methods(['GET', 'POST']);
 
     Volt::route('forgot-password', 'auth.forgot-password')
-        ->name('password.request');
+        ->name('password.request')
+        ->methods(['GET', 'POST']);
 
     Volt::route('reset-password/{token}', 'auth.reset-password')
-        ->name('password.reset');
+        ->name('password.reset')
+        ->methods(['GET', 'POST']);
 
 });
 
@@ -28,7 +32,8 @@ Route::middleware('auth')->group(function () {
         ->name('verification.verify');
 
     Volt::route('confirm-password', 'auth.confirm-password')
-        ->name('password.confirm');
+        ->name('password.confirm')
+        ->methods(['GET', 'POST']);
 });
 
 Route::post('logout', App\Livewire\Actions\Logout::class)
