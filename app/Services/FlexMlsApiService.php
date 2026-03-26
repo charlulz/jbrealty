@@ -80,24 +80,63 @@ class FlexMlsApiService
     }
 
     /**
-     * Get listing photos (returns full Spark API photo data)
+     * Get listing photos (returns full Spark API photo data).
+     *
+     * Spark paginates results: default page size is small (_limit defaults to 10; max 25 per
+     * request for typical keys). Without _page/_limit, listings with many photos only return
+     * the first page. See: https://sparkplatform.com/docs/supporting-documentation/search_and_paging_syntax
      */
-    public function getListingPhotos(string $mlsNumber): array
+    public function getListingPhotos(string $listingKey): array
     {
-        $endpoint = "/v1/listings/{$mlsNumber}/photos";
-        
+        $endpoint = "/v1/listings/{$listingKey}/photos";
+        $pageSize = 25;
+        $maxPages = 200;
+
         Log::info('Fetching listing photos from FlexMLS API', [
-            'mls_number' => $mlsNumber,
-            'endpoint' => $endpoint
+            'listing_key' => $listingKey,
+            'endpoint' => $endpoint,
         ]);
-        
-        $response = $this->makeApiRequest('GET', $endpoint);
-        
-        if (!$response || !isset($response['D']['Results'])) {
-            return [];
+
+        $allPhotos = [];
+
+        for ($page = 1; $page <= $maxPages; $page++) {
+            $params = [
+                '_limit' => $pageSize,
+                '_pagination' => 1,
+                '_page' => $page,
+            ];
+
+            $response = $this->makeApiRequest('GET', $endpoint, $params);
+
+            if (!$response || !isset($response['D']['Results']) || !is_array($response['D']['Results'])) {
+                break;
+            }
+
+            $batch = $response['D']['Results'];
+            if ($batch === []) {
+                break;
+            }
+
+            $allPhotos = array_merge($allPhotos, $batch);
+
+            $pagination = $response['D']['Pagination'] ?? null;
+            if (is_array($pagination) && isset($pagination['TotalPages'])) {
+                if ($page >= (int) $pagination['TotalPages']) {
+                    break;
+                }
+            } elseif (count($batch) < $pageSize) {
+                break;
+            }
         }
-        
-        return $response['D']['Results'];
+
+        if (count($allPhotos) > $pageSize) {
+            Log::info('Fetched listing photos across multiple pages', [
+                'listing_key' => $listingKey,
+                'photo_count' => count($allPhotos),
+            ]);
+        }
+
+        return $allPhotos;
     }
 
     /**
@@ -124,18 +163,19 @@ class FlexMlsApiService
         // only imported one photo (API hiccup, fallback path, etc.). Per-photo deduplication
         // below handles skipping rows that are already stored.
 
-        // Get ALL photos using the dedicated photos API endpoint
+        // Get ALL photos using the dedicated photos API endpoint (paginated)
         $photos = $this->getListingPhotos($listingKey);
-        
+        $usedPhotosEndpoint = $photos !== [];
+
         if (empty($photos)) {
             // Fall back to extracting from existing API data if photos API fails
             $photos = $this->extractPhotosFromApiData($apiData);
-            
+
             if (empty($photos)) {
                 Log::info('No photos found for property', [
                     'property_id' => $property->id,
                     'listing_key' => $listingKey,
-                    'photos_count_field' => $apiData['StandardFields']['PhotosCount'] ?? 0
+                    'photos_count_field' => $apiData['StandardFields']['PhotosCount'] ?? 0,
                 ]);
                 return 0;
             }
@@ -183,7 +223,7 @@ class FlexMlsApiService
             'property_id' => $property->id,
             'imported_count' => $importedCount,
             'total_photos' => count($photos),
-            'used_api_endpoint' => !empty($this->getListingPhotos($listingKey))
+            'used_photos_endpoint' => $usedPhotosEndpoint,
         ]);
 
         return $importedCount;
