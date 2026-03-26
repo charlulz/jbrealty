@@ -6,6 +6,11 @@
         Legal Disclaimers
     </h3>
 
+    @php($sourceMlsUrl = $property->sourceMlsUrl())
+    @if($sourceMlsUrl)
+        <x-source-mls-badge :url="$sourceMlsUrl" />
+    @endif
+
     <!-- Fair Housing Statement -->
     <div class="flex items-start mb-6">
         <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center mr-4 flex-shrink-0">

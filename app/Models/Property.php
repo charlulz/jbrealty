@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Property extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'title',
         'description',
@@ -95,7 +94,7 @@ class Property extends Model
         'owner_financing_available',
         'owner_financing_terms',
         'api_source',
-        'api_data'
+        'api_data',
     ];
 
     protected $casts = [
@@ -169,15 +168,15 @@ class Property extends Model
     public function features(): BelongsToMany
     {
         return $this->belongsToMany(Feature::class, 'property_features')
-                    ->withPivot('notes')
-                    ->withTimestamps();
+            ->withPivot('notes')
+            ->withTimestamps();
     }
 
     public function savedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'saved_properties')
-                    ->withPivot('notes')
-                    ->withTimestamps();
+            ->withPivot('notes')
+            ->withTimestamps();
     }
 
     // Scopes
@@ -189,7 +188,7 @@ class Property extends Model
     public function scopePublished($query)
     {
         return $query->whereNotNull('published_at')
-                    ->where('published_at', '<=', now());
+            ->where('published_at', '<=', now());
     }
 
     public function scopeAvailable($query)
@@ -211,8 +210,8 @@ class Property extends Model
     {
         return $query->where(function ($q) use ($location) {
             $q->where('city', 'like', "%{$location}%")
-              ->orWhere('county', 'like', "%{$location}%")
-              ->orWhere('state', 'like', "%{$location}%");
+                ->orWhere('county', 'like', "%{$location}%")
+                ->orWhere('state', 'like', "%{$location}%");
         });
     }
 
@@ -258,17 +257,17 @@ class Property extends Model
     // Helper methods
     public function getFormattedPriceAttribute()
     {
-        return '$' . number_format($this->price);
+        return '$'.number_format($this->price);
     }
 
     public function getFormattedPricePerAcreAttribute()
     {
-        return $this->price_per_acre ? '$' . number_format($this->price_per_acre) . '/acre' : null;
+        return $this->price_per_acre ? '$'.number_format($this->price_per_acre).'/acre' : null;
     }
 
     public function getLocationDisplayAttribute()
     {
-        return $this->city . ', ' . $this->county . ' County, ' . $this->state;
+        return $this->city.', '.$this->county.' County, '.$this->state;
     }
 
     public function incrementViews()
@@ -277,18 +276,52 @@ class Property extends Model
     }
 
     /**
+     * Source MLS impression URL from Spark/RESO listing payload (FBS SourceMLSURL), when present.
+     * Used to render the compliance badge and tracking beacon on listing detail pages.
+     *
+     * @see https://sourcemls.org/developers
+     */
+    public function sourceMlsUrl(): ?string
+    {
+        $data = $this->api_data;
+        if (! is_array($data)) {
+            return null;
+        }
+
+        $raw = $data['SourceMLSURL']
+            ?? $data['StandardFields']['SourceMLSURL']
+            ?? null;
+
+        if (! is_string($raw)) {
+            return null;
+        }
+
+        $raw = trim($raw);
+        if ($raw === '') {
+            return null;
+        }
+
+        if (! str_starts_with($raw, 'https://sourcemls.org/')) {
+            return null;
+        }
+
+        return $raw;
+    }
+
+    /**
      * Get the primary image URL for this property
      */
     public function getPrimaryImageAttribute()
     {
         $primaryImage = $this->images()->where('is_primary', true)->first();
-        
+
         if ($primaryImage) {
             return $primaryImage->url;
         }
-        
+
         // Fallback to first image if no primary is set
         $firstImage = $this->images()->ordered()->first();
+
         return $firstImage ? $firstImage->url : null;
     }
 
@@ -333,7 +366,7 @@ class Property extends Model
 
         // Check if slug exists and make it unique
         while (static::where('slug', $slug)->where('id', '!=', $this->id)->exists()) {
-            $slug = $originalSlug . '-' . $counter;
+            $slug = $originalSlug.'-'.$counter;
             $counter++;
         }
 
