@@ -120,14 +120,9 @@ class FlexMlsApiService
             return 0;
         }
 
-        // Check if we should skip existing photos
-        if (!$updateExisting && $property->images()->where('api_source', 'flexmls')->exists()) {
-            Log::info('Skipping photo import - photos already exist', [
-                'property_id' => $property->id,
-                'existing_count' => $property->images()->where('api_source', 'flexmls')->count()
-            ]);
-            return 0;
-        }
+        // Do not short-circuit when some FlexMLS images already exist: a prior run may have
+        // only imported one photo (API hiccup, fallback path, etc.). Per-photo deduplication
+        // below handles skipping rows that are already stored.
 
         // Get ALL photos using the dedicated photos API endpoint
         $photos = $this->getListingPhotos($listingKey);
