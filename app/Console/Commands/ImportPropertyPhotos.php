@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Log;
 class ImportPropertyPhotos extends Command
 {
     protected $signature = 'properties:import-photos
-                            {--property= : Specific property ID to import photos for}
+                            {--property= : Database ID (properties.id), not MLS number}
+                            {--mls= : MLS number (ListingId), e.g. 25015817}
                             {--update-existing : Update existing photos instead of skipping them}
                             {--limit= : Limit number of properties to process}';
 
@@ -30,17 +31,38 @@ class ImportPropertyPhotos extends Command
         $this->info('======================');
         
         $propertyId = $this->option('property');
+        $mls = $this->option('mls');
         $updateExisting = $this->option('update-existing');
         $limit = $this->option('limit');
 
-        if ($propertyId) {
-            // Import photos for specific property
-            $property = Property::where('api_source', 'flexmls')->find($propertyId);
-            if (!$property) {
-                $this->error("❌ Property with ID {$propertyId} not found or not from FlexMLS");
+        if ($propertyId !== null && $propertyId !== '' && $mls !== null && $mls !== '') {
+            $this->error('Use only one of --property or --mls');
+
+            return Command::FAILURE;
+        }
+
+        if ($mls !== null && $mls !== '') {
+            $property = Property::where('api_source', 'flexmls')
+                ->where('mls_number', $mls)
+                ->first();
+
+            if (! $property) {
+                $this->error("❌ No FlexMLS property found with mls_number: {$mls}");
+                $this->line('   Tip: confirm the listing is synced locally (properties.api_source = flexmls).');
+
                 return Command::FAILURE;
             }
-            
+
+            $this->importPhotosForProperty($property, $updateExisting);
+        } elseif ($propertyId !== null && $propertyId !== '') {
+            $property = Property::where('api_source', 'flexmls')->find($propertyId);
+            if (! $property) {
+                $this->error("❌ Property with database id {$propertyId} not found or not api_source flexmls.");
+                $this->line('   Tip: use --mls=YOUR_LISTING_ID if you only know the MLS number from the site.');
+
+                return Command::FAILURE;
+            }
+
             $this->importPhotosForProperty($property, $updateExisting);
         } else {
             // Import photos for all FlexMLS properties
