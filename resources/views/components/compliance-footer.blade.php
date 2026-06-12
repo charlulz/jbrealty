@@ -21,6 +21,41 @@
             </div>
         </div>
 
+        <!-- Realtor Association Affiliations -->
+        <div class="border-t border-white/10 pt-8 pb-8">
+            <p class="text-white/50 text-xs uppercase tracking-widest text-center mb-6">Professional Affiliations</p>
+            <div class="flex flex-wrap items-center justify-center gap-6 lg:gap-10">
+                <div class="h-14 w-36 flex items-center justify-center overflow-hidden flex-shrink-0" title="Northern Kentucky Association of Realtors">
+                    <img
+                        src="{{ asset('images/realtor_logos/IMG_3521.png') }}"
+                        alt="Northern Kentucky Association of Realtors"
+                        class="h-full w-full object-contain object-center"
+                    >
+                </div>
+                <div class="h-14 w-36 flex items-center justify-center overflow-hidden flex-shrink-0" title="Bluegrass Realtors">
+                    <img
+                        src="{{ asset('images/realtor_logos/Untitled design.png') }}"
+                        alt="Bluegrass Realtors"
+                        class="h-full w-full object-contain object-center"
+                    >
+                </div>
+                <div class="h-14 w-36 flex items-center justify-center overflow-hidden flex-shrink-0" title="REALTOR Association of Southern Kentucky">
+                    <img
+                        src="{{ asset('images/realtor_logos/IMG_3522.png') }}"
+                        alt="REALTOR Association of Southern Kentucky"
+                        class="h-full w-full object-contain object-center"
+                    >
+                </div>
+                <div class="h-14 w-36 flex items-center justify-center overflow-hidden flex-shrink-0 bg-white rounded-lg p-1.5" title="Kentucky Realtors">
+                    <img
+                        src="{{ asset('images/realtor_logos/299610990_590516622513842_2615226307571398903_n.jpeg') }}"
+                        alt="Kentucky Realtors"
+                        class="h-full w-full object-cover object-center"
+                    >
+                </div>
+            </div>
+        </div>
+
         <!-- MLS Disclaimers -->
         <div class="border-t border-white/10 pt-8 space-y-4">
             <div class="grid md:grid-cols-2 gap-8">
