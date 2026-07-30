@@ -51,6 +51,8 @@ return [
         'reso_url' => env('FLEXMLS_RESO_URL', 'https://replication.sparkapi.com/Version/3/Reso/OData'),
         // Own-data plans should use /v1/my/listings; IDX plans use /v1/listings
         'listings_endpoint' => env('FLEXMLS_LISTINGS_ENDPOINT', '/v1/my/listings'),
+        // User imported listings are attributed to; falls back to the first user
+        'listing_agent_id' => env('FLEXMLS_LISTING_AGENT_ID'),
     ],
 
 ];

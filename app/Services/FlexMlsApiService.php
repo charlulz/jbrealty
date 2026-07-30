@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Models\PropertyImage;
+use App\Models\User;
 
 class FlexMlsApiService
 {
@@ -14,6 +15,8 @@ class FlexMlsApiService
     private string $resoBaseUrl;
     private string $feedId;
     private string $listingsEndpoint;
+    private ?int $listingAgentId = null;
+    private bool $listingAgentResolved = false;
     
     // Rate limiting settings (Spark allows bursty replication pulls)
     private int $maxRequestsPerMinute = 120;
@@ -703,12 +706,39 @@ class FlexMlsApiService
             'public_remarks' => $this->cleanDescription($this->unmask($data['PublicRemarks'] ?? '')),
             'private_remarks' => $this->cleanDescription($this->unmask($data['PrivateRemarks'] ?? '')),
             'primary_image' => $this->extractPrimaryImageUrl($listing),
-            'listing_agent_id' => 1, // Default agent, adjust as needed
+            'listing_agent_id' => $this->resolveListingAgentId(),
             'published_at' => now(),
             'featured' => false,
             'api_source' => 'flexmls',
             'api_data' => json_encode($listing), // Store original data for reference
         ];
+    }
+
+    /**
+     * properties.listing_agent_id is a foreign key to users.id, so it must point at a
+     * user that actually exists or every insert fails. On a freshly migrated database
+     * there may be no users yet — the column is nullable, so leave it empty rather than
+     * assuming an ID.
+     */
+    private function resolveListingAgentId(): ?int
+    {
+        if ($this->listingAgentResolved) {
+            return $this->listingAgentId;
+        }
+
+        $configured = config('services.flexmls.listing_agent_id');
+
+        $this->listingAgentId = $configured && User::whereKey($configured)->exists()
+            ? (int) $configured
+            : User::orderBy('id')->value('id');
+
+        $this->listingAgentResolved = true;
+
+        if ($this->listingAgentId === null) {
+            Log::warning('No users exist; importing listings without a listing agent. Run db:seed to create the admin user.');
+        }
+
+        return $this->listingAgentId;
     }
 
     /**
