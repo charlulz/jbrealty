@@ -11,50 +11,144 @@ class FlexMlsApiService
 {
     private string $accessToken;
     private string $apiBaseUrl;
+    private string $resoBaseUrl;
     private string $feedId;
+    private string $listingsEndpoint;
     
-    // Rate limiting settings
-    private int $maxRequestsPerMinute = 60;
+    // Rate limiting settings (Spark allows bursty replication pulls)
+    private int $maxRequestsPerMinute = 120;
     private string $rateLimitCacheKey = 'flexmls_api_rate_limit';
     
     public function __construct()
     {
-        $this->accessToken = config('services.flexmls.access_token', 'bbqc409db06nezg8fdsz0jaw7');
-        $this->feedId = config('services.flexmls.feed_id', 'ddnzarj1vajdzzvcdp2es4tro');
-        $this->apiBaseUrl = config('services.flexmls.base_url', 'https://api.sparkplatform.com');
+        $this->accessToken = (string) config('services.flexmls.access_token', '');
+        $this->feedId = (string) config('services.flexmls.feed_id', '');
+        $this->apiBaseUrl = rtrim((string) config('services.flexmls.base_url', 'https://replication.sparkapi.com'), '/');
+        $this->resoBaseUrl = rtrim((string) config('services.flexmls.reso_url', 'https://replication.sparkapi.com/Version/3/Reso/OData'), '/');
+        // Own-data ImagineMLS plans: /v1/my/listings. IDX: /v1/listings
+        $this->listingsEndpoint = (string) config('services.flexmls.listings_endpoint', '/v1/my/listings');
     }
 
     /**
-     * Get listings from the FlexMLS API
+     * Get listings from the FlexMLS / Spark API (paginated).
+     *
+     * With the ImagineMLS own-data feed, prefer /v1/my/listings so we get
+     * Jeremiah Brown's full inventory without geographic workarounds.
      */
     public function getListings(array $filters = []): array
     {
-        $endpoint = '/v1/listings';
-        $params = $this->buildListingParameters($filters);
-        
-        Log::info('Fetching listings from FlexMLS API', [
-            'endpoint' => $endpoint,
-            'params' => $params,
-            'feed_id' => $this->feedId
-        ]);
-        
-        $response = $this->makeApiRequest('GET', $endpoint, $params);
-        
-        Log::info('FlexMLS API response received', [
-            'response_has_data' => !empty($response),
-            'response_structure' => $response ? array_keys($response) : 'null',
-            'has_results' => isset($response['D']['Results']),
-            'results_count' => isset($response['D']['Results']) ? count($response['D']['Results']) : 0
-        ]);
-        
-        if (!$response) {
+        if ($this->accessToken === '') {
+            Log::error('FlexMLS access token is not configured');
             return [];
         }
-        
-        $listings = $this->processListingsResponse($response);
-        
-        // Apply client-side filtering since the replication API has limited filtering
+
+        $endpoint = $this->listingsEndpoint;
+        $pageSize = min((int) ($filters['limit'] ?? 200), 200);
+        $maxPages = 50;
+        $allRaw = [];
+
+        Log::info('Fetching listings from FlexMLS API', [
+            'endpoint' => $endpoint,
+            'page_size' => $pageSize,
+            'feed_id' => $this->feedId,
+        ]);
+
+        for ($page = 1; $page <= $maxPages; $page++) {
+            $params = $this->buildListingParameters(array_merge($filters, [
+                'limit' => $pageSize,
+                'page' => $page,
+            ]));
+
+            $response = $this->makeApiRequest('GET', $endpoint, $params);
+
+            if (!$response || !isset($response['D']['Results']) || !is_array($response['D']['Results'])) {
+                break;
+            }
+
+            $batch = $response['D']['Results'];
+            if ($batch === []) {
+                break;
+            }
+
+            $allRaw = array_merge($allRaw, $batch);
+
+            $pagination = $response['D']['Pagination'] ?? null;
+            if (is_array($pagination) && isset($pagination['TotalPages'])) {
+                if ($page >= (int) $pagination['TotalPages']) {
+                    break;
+                }
+            } elseif (count($batch) < $pageSize) {
+                break;
+            }
+        }
+
+        Log::info('FlexMLS API listings fetched', [
+            'raw_count' => count($allRaw),
+            'endpoint' => $endpoint,
+        ]);
+
+        $listings = $this->processListingsResponse(['D' => ['Results' => $allRaw]]);
+
+        // Apply client-side filtering (agent safety net + optional filters)
         return $this->applyClientSideFilters($listings, $filters);
+    }
+
+    /**
+     * Fetch Property records from RESO Web API v3 (OData).
+     *
+     * Useful for replication / filtered queries. Photo URLs still come from
+     * the Spark photos endpoint via importPropertyPhotos().
+     */
+    public function getResoProperties(array $options = []): array
+    {
+        if ($this->accessToken === '') {
+            Log::error('FlexMLS access token is not configured');
+            return [];
+        }
+
+        $query = [
+            '$top' => $options['top'] ?? 100,
+            '$count' => 'true',
+        ];
+
+        if (!empty($options['filter'])) {
+            $query['$filter'] = $options['filter'];
+        }
+
+        if (!empty($options['select'])) {
+            $query['$select'] = $options['select'];
+        }
+
+        if (!empty($options['expand'])) {
+            $query['$expand'] = $options['expand'];
+        }
+
+        if (!empty($options['skiptoken'])) {
+            $query['$skiptoken'] = $options['skiptoken'];
+        }
+
+        $url = $this->resoBaseUrl . '/Property?' . http_build_query($query);
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->accessToken,
+                'Accept' => 'application/json',
+                'User-Agent' => 'Jeremiah Brown Real Estate/1.0',
+            ])->timeout(60)->get($url);
+
+            if (!$response->successful()) {
+                Log::error('RESO Property request failed', [
+                    'status' => $response->status(),
+                    'body' => substr($response->body(), 0, 500),
+                ]);
+                return [];
+            }
+
+            return $response->json() ?? [];
+        } catch (\Exception $e) {
+            Log::error('RESO Property request exception', ['error' => $e->getMessage()]);
+            return [];
+        }
     }
 
     /**
@@ -82,31 +176,45 @@ class FlexMlsApiService
     /**
      * Get listing photos (returns full Spark API photo data).
      *
-     * Spark paginates results: default page size is small (_limit defaults to 10; max 25 per
-     * request for typical keys). Without _page/_limit, listings with many photos only return
-     * the first page. See: https://sparkplatform.com/docs/supporting-documentation/search_and_paging_syntax
+     * Prefer `_expand=Photos` on the listing (one request). The dedicated
+     * `/photos` sub-resource often ignores `_limit`/`_page` and returns the
+     * full set with no Pagination object — so we must not page blindly.
      */
     public function getListingPhotos(string $listingKey): array
     {
-        $endpoint = "/v1/listings/{$listingKey}/photos";
-        $pageSize = 25;
-        $maxPages = 200;
-
         Log::info('Fetching listing photos from FlexMLS API', [
             'listing_key' => $listingKey,
-            'endpoint' => $endpoint,
         ]);
 
+        // Fast path: expand Photos on the listing itself
+        $expanded = $this->makeApiRequest('GET', "/v1/listings/{$listingKey}", [
+            '_expand' => 'Photos',
+        ]);
+
+        if ($expanded && !empty($expanded['D']['Results'][0])) {
+            $listing = $expanded['D']['Results'][0];
+            $photos = $listing['StandardFields']['Photos']
+                ?? $listing['Photos']
+                ?? [];
+
+            if (is_array($photos) && $photos !== []) {
+                return $this->uniquePhotosById($photos);
+            }
+        }
+
+        // Fallback: dedicated photos endpoint (single request — do not page
+        // unless Pagination metadata is present)
+        $endpoint = "/v1/listings/{$listingKey}/photos";
+        $pageSize = 25;
+        $maxPages = 50;
         $allPhotos = [];
 
         for ($page = 1; $page <= $maxPages; $page++) {
-            $params = [
+            $response = $this->makeApiRequest('GET', $endpoint, [
                 '_limit' => $pageSize,
                 '_pagination' => 1,
                 '_page' => $page,
-            ];
-
-            $response = $this->makeApiRequest('GET', $endpoint, $params);
+            ]);
 
             if (!$response || !isset($response['D']['Results']) || !is_array($response['D']['Results'])) {
                 break;
@@ -124,19 +232,35 @@ class FlexMlsApiService
                 if ($page >= (int) $pagination['TotalPages']) {
                     break;
                 }
-            } elseif (count($batch) < $pageSize) {
+            } else {
+                // No pagination metadata: this MLS returns the full set in one
+                // response (often ignoring _limit). Stop after the first page.
                 break;
             }
         }
 
-        if (count($allPhotos) > $pageSize) {
-            Log::info('Fetched listing photos across multiple pages', [
-                'listing_key' => $listingKey,
-                'photo_count' => count($allPhotos),
-            ]);
+        return $this->uniquePhotosById($allPhotos);
+    }
+
+    /**
+     * Deduplicate Spark photo records by Id.
+     */
+    private function uniquePhotosById(array $photos): array
+    {
+        $unique = [];
+        foreach ($photos as $photo) {
+            if (!is_array($photo)) {
+                continue;
+            }
+            $id = $photo['Id'] ?? null;
+            if ($id) {
+                $unique[$id] = $photo;
+            } else {
+                $unique[] = $photo;
+            }
         }
 
-        return $allPhotos;
+        return array_values($unique);
     }
 
     /**
@@ -385,27 +509,24 @@ class FlexMlsApiService
     private function buildListingParameters(array $filters): array
     {
         $params = [
-            '_limit' => $filters['limit'] ?? 500, // Use 500 as this found our listing
+            '_limit' => $filters['limit'] ?? 200,
             '_expand' => 'PrimaryPhoto',
+            '_pagination' => 1,
         ];
-        
-        // Add pagination support if needed - but note that pagination seems to miss some listings
+
+        if (!empty($filters['page'])) {
+            $params['_page'] = (int) $filters['page'];
+        }
+
         if (!empty($filters['offset'])) {
             $params['_offset'] = $filters['offset'];
         }
-        
-        // The replication API might not support complex filtering
-        // Let's start with minimal filters and see what works
-        
-        // Don't add any status filters by default - get all listings regardless of status
-        // Only add status filter if specifically requested
-        if (!empty($filters['status']) && $filters['status'] !== 'All') {
-            $params['$filter'] = "MlsStatus eq '{$filters['status']}'";
+
+        // Spark filter syntax for own-data / replication keys
+        if (!empty($filters['status']) && !in_array($filters['status'], ['All', 'all'], true)) {
+            $params['_filter'] = "MlsStatus Eq '{$filters['status']}'";
         }
-        
-        // Skip other complex filters for now until we understand the API better
-        // We'll filter the results after fetching them, including agent filtering
-        
+
         return $params;
     }
 
@@ -539,38 +660,41 @@ class FlexMlsApiService
         
         return [
             'title' => $fullAddress ?: ($data['ListingId'] ?? 'Property Listing'),
-            'description' => $this->cleanDescription($data['PublicRemarks'] ?? ''),
-            'mls_number' => $data['ListingId'] ?? $data['MlsNumber'] ?? null,
-            'status' => $this->mapMlsStatus($data['MlsStatus'] ?? 'Active'),
-            'property_type' => $this->mapPropertyType($data['PropertySubType'] ?? $data['PropertyType'] ?? 'Single Family Residence'),
-            'price' => $this->parsePrice($data['ListPrice'] ?? 0),
+            'description' => $this->cleanDescription($this->unmask($data['PublicRemarks'] ?? '')),
+            'mls_number' => $this->unmask($data['ListingId'] ?? $data['MlsNumber'] ?? null),
+            'status' => $this->mapMlsStatus((string) ($this->unmask($data['MlsStatus'] ?? 'Active') ?? 'Active')),
+            'property_type' => $this->mapPropertyType((string) ($this->unmask($data['PropertySubType'] ?? $data['PropertyType'] ?? 'Single Family Residence') ?? 'Single Family Residence')),
+            'price' => $this->parsePrice($this->unmask($data['ListPrice'] ?? 0)),
             'price_per_acre' => $this->calculatePricePerAcre(
-                $data['ListPrice'] ?? 0,
-                $data['LotSizeAcres'] ?? null
+                $this->unmask($data['ListPrice'] ?? 0),
+                $this->unmask($data['LotSizeAcres'] ?? null)
             ),
             'street_address' => $address,
-            'city' => $data['City'] ?? '',
-            'county' => $data['CountyOrParish'] ?? '',
-            'state' => $data['StateOrProvince'] ?? 'KY',
-            'zip_code' => $data['PostalCode'] ?? '',
-            'latitude' => $data['Latitude'] ?? null,
-            'longitude' => $data['Longitude'] ?? null,
-            'total_acres' => $this->parseAcres($data['LotSizeAcres'] ?? null),
-            'tillable_acres' => $this->parseAcres($data['CultivatedArea'] ?? null),
-            'wooded_acres' => $this->parseAcres($data['WoodedArea'] ?? null),
-            'pasture_acres' => $this->parseAcres($data['PastureArea'] ?? null),
-            'wetland_acres' => $this->parseAcres($data['WetlandsAcreage'] ?? null),
-            'water_access' => $this->parseBoolean($data['WaterfrontYN'] ?? false),
-            'has_home' => !empty($data['BedsTotal']) || !empty($data['LivingArea']),
-            'home_sq_ft' => $data['LivingArea'] ?? null,
-            'home_bedrooms' => $data['BedsTotal'] ?? null,
-            'home_bathrooms' => $data['BathroomsTotalDecimal'] ?? $data['BathsTotal'] ?? null,
-            'home_year_built' => $data['YearBuilt'] ?? null,
-            'listing_date' => $this->parseDate($data['OnMarketDate'] ?? $data['ListingContractDate']),
-            'last_updated' => $this->parseDate($data['ModificationTimestamp']),
-            'days_on_market' => $this->calculateDaysOnMarket($data['OnMarketDate'] ?? null),
-            'public_remarks' => $this->cleanDescription($data['PublicRemarks'] ?? ''),
-            'private_remarks' => $this->cleanDescription($data['PrivateRemarks'] ?? ''),
+            'city' => (string) ($this->unmask($data['City'] ?? '') ?? ''),
+            'county' => (string) ($this->unmask($data['CountyOrParish'] ?? '') ?? ''),
+            'state' => (string) ($this->unmask($data['StateOrProvince'] ?? 'KY') ?? 'KY'),
+            'zip_code' => (string) ($this->unmask($data['PostalCode'] ?? '') ?? ''),
+            'latitude' => $this->parseNullableFloat($this->unmask($data['Latitude'] ?? null)),
+            'longitude' => $this->parseNullableFloat($this->unmask($data['Longitude'] ?? null)),
+            'total_acres' => $this->parseAcres($this->unmask($data['LotSizeAcres'] ?? null)),
+            'tillable_acres' => $this->parseAcres($this->unmask($data['CultivatedArea'] ?? null)),
+            'wooded_acres' => $this->parseAcres($this->unmask($data['WoodedArea'] ?? null)),
+            'pasture_acres' => $this->parseAcres($this->unmask($data['PastureArea'] ?? null)),
+            'wetland_acres' => $this->parseAcres($this->unmask($data['WetlandsAcreage'] ?? null)),
+            'water_access' => $this->parseBoolean($this->unmask($data['WaterfrontYN'] ?? false)),
+            'has_home' => $this->parseNullableInt($this->unmask($data['BedsTotal'] ?? null)) !== null
+                || $this->parseNullableInt($this->unmask($data['LivingArea'] ?? null)) !== null,
+            'home_sq_ft' => $this->parseNullableInt($this->unmask($data['LivingArea'] ?? null)),
+            'home_bedrooms' => $this->parseNullableInt($this->unmask($data['BedsTotal'] ?? null)),
+            'home_bathrooms' => $this->parseNullableFloat(
+                $this->unmask($data['BathroomsTotalDecimal'] ?? $data['BathsTotal'] ?? null)
+            ),
+            'home_year_built' => $this->parseYear($this->unmask($data['YearBuilt'] ?? null)),
+            'listing_date' => $this->parseDate($this->unmask($data['OnMarketDate'] ?? $data['ListingContractDate'] ?? null)),
+            'last_updated' => $this->parseDate($this->unmask($data['ModificationTimestamp'] ?? null)),
+            'days_on_market' => $this->calculateDaysOnMarket($this->unmask($data['OnMarketDate'] ?? null)),
+            'public_remarks' => $this->cleanDescription($this->unmask($data['PublicRemarks'] ?? '')),
+            'private_remarks' => $this->cleanDescription($this->unmask($data['PrivateRemarks'] ?? '')),
             'primary_image' => $this->extractPrimaryImageUrl($listing),
             'listing_agent_id' => 1, // Default agent, adjust as needed
             'published_at' => now(),
@@ -578,6 +702,53 @@ class FlexMlsApiService
             'api_source' => 'flexmls',
             'api_data' => json_encode($listing), // Store original data for reference
         ];
+    }
+
+    /**
+     * Spark masks restricted fields as ******** — treat those as null.
+     */
+    private function unmask(mixed $value): mixed
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '' || $trimmed === '********' || str_starts_with($trimmed, '****')) {
+                return null;
+            }
+        }
+
+        return $value;
+    }
+
+    private function parseNullableInt(mixed $value): ?int
+    {
+        if ($value === null || $value === '' || !is_numeric($value)) {
+            return null;
+        }
+
+        return (int) $value;
+    }
+
+    private function parseNullableFloat(mixed $value): ?float
+    {
+        if ($value === null || $value === '' || !is_numeric($value)) {
+            return null;
+        }
+
+        return (float) $value;
+    }
+
+    private function parseYear(mixed $value): ?int
+    {
+        $year = $this->parseNullableInt($value);
+        if ($year === null || $year < 1800 || $year > ((int) date('Y') + 2)) {
+            return null;
+        }
+
+        return $year;
     }
 
     /**
@@ -603,9 +774,13 @@ class FlexMlsApiService
             'Contingent' => 'pending',
             'Sold' => 'sold',
             'Closed' => 'sold',
-            'Cancelled' => 'inactive',
-            'Expired' => 'inactive',
-            'Withdrawn' => 'inactive',
+            // DB enum: active, pending, sold, off_market, draft
+            'Cancelled' => 'off_market',
+            'Canceled' => 'off_market',
+            'Expired' => 'off_market',
+            'Withdrawn' => 'off_market',
+            'Delete' => 'off_market',
+            'Temporary Off Market' => 'off_market',
         ];
 
         return $statusMap[$status] ?? 'active';
@@ -771,10 +946,11 @@ class FlexMlsApiService
             });
         }
         
-        // Filter by status (if not already handled server-side)
-        if (!empty($filters['status'])) {
-            $filteredListings = array_filter($filteredListings, function($listing) use ($filters) {
-                return strcasecmp($listing['status'], $filters['status']) === 0;
+        // Filter by status (mapped DB statuses: active/pending/sold/inactive)
+        if (!empty($filters['status']) && !in_array($filters['status'], ['All', 'all'], true)) {
+            $wanted = $this->mapMlsStatus($filters['status']);
+            $filteredListings = array_filter($filteredListings, function ($listing) use ($wanted) {
+                return strcasecmp($listing['status'] ?? '', $wanted) === 0;
             });
         }
         

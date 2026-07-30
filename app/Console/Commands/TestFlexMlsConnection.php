@@ -49,6 +49,9 @@ class TestFlexMlsConnection extends Command
         
         // Test 5: Listings endpoint with minimal filters
         $this->testListingsEndpoint();
+
+        // Test 6: RESO Web API v3
+        $this->testResoEndpoint();
         
         return Command::SUCCESS;
     }
@@ -237,15 +240,18 @@ class TestFlexMlsConnection extends Command
         $accessToken = config('services.flexmls.access_token');
         
         try {
-            // Test with minimal parameters
+            // Test with minimal parameters using configured listings endpoint
+            $listingsEndpoint = config('services.flexmls.listings_endpoint', '/v1/my/listings');
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $accessToken,
                 'Accept' => 'application/json',
-            ])->timeout(30)->get($baseUrl . '/v1/listings', [
-                '_limit' => 1,
-                '_expand' => 'PrimaryPhoto'
+            ])->timeout(30)->get($baseUrl . $listingsEndpoint, [
+                '_limit' => 5,
+                '_expand' => 'PrimaryPhoto',
+                '_pagination' => 1,
             ]);
-            
+
+            $this->line('   Endpoint: ' . $listingsEndpoint);            
             $this->line("   Status: " . $response->status());
             
             if ($response->successful()) {
@@ -326,6 +332,53 @@ class TestFlexMlsConnection extends Command
             $this->error('   ❌ Listings test failed: ' . $e->getMessage());
         }
         
+        $this->newLine();
+    }
+
+    private function testResoEndpoint(): void
+    {
+        $this->info('6️⃣ Testing RESO Web API v3...');
+
+        $resoUrl = rtrim((string) config('services.flexmls.reso_url'), '/');
+        $accessToken = config('services.flexmls.access_token');
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $accessToken,
+                'Accept' => 'application/json',
+            ])->timeout(30)->get($resoUrl . '/Property', [
+                '$top' => 3,
+                '$count' => 'true',
+                '$filter' => "MlsStatus eq 'Active'",
+                '$select' => 'ListingId,ListPrice,UnparsedAddress,MlsStatus,ListAgentFullName',
+            ]);
+
+            $this->line('   Endpoint: ' . $resoUrl . '/Property');
+            $this->line('   Status: ' . $response->status());
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $count = $data['@odata.count'] ?? count($data['value'] ?? []);
+                $this->line('   ✅ RESO v3 accessible');
+                $this->line('   Active properties (count): ' . $count);
+
+                foreach (array_slice($data['value'] ?? [], 0, 3) as $i => $property) {
+                    $this->line(sprintf(
+                        '   %d. MLS #%s | %s | $%s',
+                        $i + 1,
+                        $property['ListingId'] ?? 'N/A',
+                        $property['UnparsedAddress'] ?? 'N/A',
+                        number_format($property['ListPrice'] ?? 0)
+                    ));
+                }
+            } else {
+                $this->error('   ❌ RESO request failed');
+                $this->line('   Response: ' . substr($response->body(), 0, 300));
+            }
+        } catch (\Exception $e) {
+            $this->error('   ❌ RESO test failed: ' . $e->getMessage());
+        }
+
         $this->newLine();
     }
 }

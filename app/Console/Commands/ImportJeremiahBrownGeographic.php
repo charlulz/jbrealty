@@ -138,6 +138,50 @@ class ImportJeremiahBrownGeographic extends Command
     {
         $baseUrl = config('services.flexmls.base_url');
         $accessToken = config('services.flexmls.access_token');
+        $listingsEndpoint = config('services.flexmls.listings_endpoint', '/v1/my/listings');
+
+        // Prefer own-data my/listings when configured — full inventory in one request.
+        if (str_contains($listingsEndpoint, 'my/listings')) {
+            $this->info('📌 Using ImagineMLS own-data feed: ' . $listingsEndpoint);
+
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $accessToken,
+                    'Accept' => 'application/json',
+                ])->timeout(60)->get(rtrim($baseUrl, '/') . $listingsEndpoint, [
+                    '_limit' => 200,
+                    '_expand' => 'PrimaryPhoto',
+                    '_pagination' => 1,
+                    '_page' => 1,
+                ]);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $listings = $data['D']['Results'] ?? [];
+                    $this->line('   📊 Retrieved ' . count($listings) . ' listings from own-data feed');
+
+                    $allJeremiahListings = [];
+                    foreach ($listings as $listing) {
+                        if ($this->isJeremiahBrownListing($listing)) {
+                            $allJeremiahListings[] = $listing;
+                        }
+                    }
+
+                    // Deduplicate by ListingId
+                    $unique = [];
+                    foreach ($allJeremiahListings as $listing) {
+                        $id = $listing['StandardFields']['ListingId'] ?? ($listing['Id'] ?? uniqid());
+                        $unique[$id] = $listing;
+                    }
+
+                    return array_values($unique);
+                }
+
+                $this->warn('   ⚠️ Own-data feed failed (HTTP ' . $response->status() . '); falling back to geographic search');
+            } catch (\Exception $e) {
+                $this->warn('   ⚠️ Own-data feed error: ' . $e->getMessage() . '; falling back to geographic search');
+            }
+        }
 
         $allJeremiahListings = [];
 

@@ -42,10 +42,15 @@ return [
     ],
 
     'flexmls' => [
-        'access_token' => env('FLEXMLS_ACCESS_TOKEN', 'bbqc409db06nezg8fdsz0jaw7'),
-        'feed_id' => env('FLEXMLS_FEED_ID', 'ddnzarj1vajdzzvcdp2es4tro'),
-        'base_url' => env('FLEXMLS_BASE_URL', 'https://replication.sparkapi.com'), // Revert - our key only works with replication
-        'replication_url' => env('FLEXMLS_REPLICATION_URL', 'https://replication.sparkapi.com'), // Keep as fallback
+        // ImagineMLS "Broker or Agent's Own Data" feed (user Imagine.20271)
+        'access_token' => env('FLEXMLS_ACCESS_TOKEN'),
+        'feed_id' => env('FLEXMLS_FEED_ID'),
+        'base_url' => env('FLEXMLS_BASE_URL', 'https://replication.sparkapi.com'),
+        'replication_url' => env('FLEXMLS_REPLICATION_URL', 'https://replication.sparkapi.com'),
+        // RESO Web API v3 (recommended for new integrations)
+        'reso_url' => env('FLEXMLS_RESO_URL', 'https://replication.sparkapi.com/Version/3/Reso/OData'),
+        // Own-data plans should use /v1/my/listings; IDX plans use /v1/listings
+        'listings_endpoint' => env('FLEXMLS_LISTINGS_ENDPOINT', '/v1/my/listings'),
     ],
 
 ];

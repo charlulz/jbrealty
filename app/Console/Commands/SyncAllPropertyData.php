@@ -41,11 +41,22 @@ class SyncAllPropertyData extends Command
             if ($dryRun) {
                 $this->warn('   ⚠️ Skipping import in dry-run mode (import command doesn\'t support dry-run)');
             } else {
-                $importResult = $this->call('properties:import-jeremiah-geographic');
+                // ImagineMLS own-data feed via /v1/my/listings
+                $importResult = $this->call('properties:import-flexmls', [
+                    '--update-existing' => true,
+                    '--status' => 'All',
+                    '--limit' => 500,
+                ]);
                 
                 if ($importResult !== 0) {
                     $this->error('❌ Property import failed! Aborting sync.');
                     return Command::FAILURE;
+                }
+
+                $this->info('   ✅ Property listings imported — fetching photos...');
+                $photoResult = $this->call('properties:import-photos');
+                if ($photoResult !== 0) {
+                    $this->warn('   ⚠️ Photo import reported errors; continuing with remaining steps...');
                 }
                 
                 $this->info('   ✅ Property listings and photos imported successfully');
