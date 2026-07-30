@@ -54,7 +54,11 @@ class SyncAllPropertyData extends Command
                 }
 
                 $this->info('   ✅ Property listings imported — fetching photos...');
-                $photoResult = $this->call('properties:import-photos');
+                // Only listings the site displays need photo coverage; sold/off-market
+                // history keeps whatever it already has.
+                $photoResult = $this->call('properties:import-photos', [
+                    '--statuses' => 'active,pending',
+                ]);
                 if ($photoResult !== 0) {
                     $this->warn('   ⚠️ Photo import reported errors; continuing with remaining steps...');
                 }

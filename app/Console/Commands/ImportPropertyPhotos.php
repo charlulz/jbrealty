@@ -13,6 +13,7 @@ class ImportPropertyPhotos extends Command
                             {--property= : Database ID (properties.id), not MLS number}
                             {--mls= : MLS number (ListingId), e.g. 25015817}
                             {--update-existing : Update existing photos instead of skipping them}
+                            {--statuses= : Comma separated statuses to process, e.g. active,pending}
                             {--limit= : Limit number of properties to process}';
 
     protected $description = 'Import photos for Jeremiah Brown properties from Spark API';
@@ -66,7 +67,7 @@ class ImportPropertyPhotos extends Command
             $this->importPhotosForProperty($property, $updateExisting);
         } else {
             // Import photos for all FlexMLS properties
-            $this->importPhotosForAllProperties($updateExisting, $limit);
+            $this->importPhotosForAllProperties($updateExisting, $limit, $this->parseStatuses());
         }
 
         return Command::SUCCESS;
@@ -97,79 +98,116 @@ class ImportPropertyPhotos extends Command
     }
 
     /**
-     * Import photos for all FlexMLS properties
+     * Statuses requested via --statuses, e.g. "active,pending"
+     *
+     * @return array<int, string>
      */
-    private function importPhotosForAllProperties(bool $updateExisting, ?int $limit): void
+    private function parseStatuses(): array
+    {
+        $raw = (string) $this->option('statuses');
+
+        if (trim($raw) === '') {
+            return [];
+        }
+
+        return array_values(array_filter(array_map('trim', explode(',', $raw))));
+    }
+
+    /**
+     * Import photos for all FlexMLS properties.
+     *
+     * Properties are streamed in chunks so memory stays flat regardless of how
+     * many listings exist — each record carries a sizeable api_data payload.
+     *
+     * @param  array<int, string>  $statuses
+     */
+    private function importPhotosForAllProperties(bool $updateExisting, ?int $limit, array $statuses = []): void
     {
         $query = Property::where('api_source', 'flexmls');
-        
-        if ($limit) {
-            $query->limit($limit);
+
+        if ($statuses !== []) {
+            $query->whereIn('status', $statuses);
+            $this->line('   Statuses: ' . implode(', ', $statuses));
         }
-        
-        $properties = $query->get();
-        $totalProperties = $properties->count();
-        
+
+        $totalProperties = (clone $query)->count();
+
+        if ($limit) {
+            $totalProperties = min($limit, $totalProperties);
+        }
+
         if ($totalProperties === 0) {
             $this->warn('⚠️ No FlexMLS properties found');
             return;
         }
-        
+
         $this->info("Found {$totalProperties} properties for photo import");
         $this->newLine();
-        
+
         $progressBar = $this->output->createProgressBar($totalProperties);
         $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% - %message%');
         $progressBar->setMessage('Starting...');
         $progressBar->start();
-        
+
+        $processed = 0;
         $totalPhotos = 0;
         $successCount = 0;
         $errorCount = 0;
-        
-        foreach ($properties as $index => $property) {
-            $progressBar->setMessage("Processing: " . \Illuminate\Support\Str::limit($property->title, 40));
-            
-            try {
-                $photosImported = $this->flexMlsService->importPropertyPhotos($property, $updateExisting);
-                $totalPhotos += $photosImported;
-                
-                if ($photosImported > 0) {
-                    $successCount++;
+
+        $query->orderBy('id')->chunkById(25, function ($properties) use (
+            $updateExisting, $totalProperties, $progressBar,
+            &$processed, &$totalPhotos, &$successCount, &$errorCount
+        ) {
+            foreach ($properties as $property) {
+                $progressBar->setMessage('Processing: ' . \Illuminate\Support\Str::limit($property->title, 40));
+
+                try {
+                    $photosImported = $this->flexMlsService->importPropertyPhotos($property, $updateExisting);
+                    $totalPhotos += $photosImported;
+
+                    if ($photosImported > 0) {
+                        $successCount++;
+                        // Only pace ourselves when we actually hit the API
+                        usleep(250000);
+                    }
+                } catch (\Throwable $e) {
+                    $errorCount++;
+                    Log::error('Photo import failed for property', [
+                        'property_id' => $property->id,
+                        'property_title' => $property->title,
+                        'error' => $e->getMessage(),
+                    ]);
                 }
-                
-                // Small delay to be respectful to the API
-                usleep(500000); // 0.5 second delay
-                
-            } catch (\Exception $e) {
-                $errorCount++;
-                Log::error('Photo import failed for property', [
-                    'property_id' => $property->id,
-                    'property_title' => $property->title,
-                    'error' => $e->getMessage()
-                ]);
+
+                $processed++;
+                $progressBar->advance();
+
+                if ($processed >= $totalProperties) {
+                    return false;
+                }
             }
-            
-            $progressBar->advance();
-        }
-        
+
+            return true;
+        });
+
         $progressBar->finish();
         $this->newLine(2);
-        
+
         // Summary
         $this->info('📊 PHOTO IMPORT SUMMARY');
         $this->info('======================');
         $this->table(['Metric', 'Count'], [
-            ['Total Properties Processed', $totalProperties],
+            ['Total Properties Processed', $processed],
             ['Properties with New Photos', $successCount],
             ['Total Photos Imported', $totalPhotos],
             ['Errors', $errorCount],
+            ['Peak Memory (MB)', round(memory_get_peak_usage(true) / 1048576, 1)],
         ]);
-        
+
         if ($errorCount > 0) {
             $this->warn("⚠️ {$errorCount} properties had import errors. Check logs for details.");
         }
-        
+
         $this->info("\n✨ Photo import completed!");
     }
 }

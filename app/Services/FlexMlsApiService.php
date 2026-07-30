@@ -283,9 +283,15 @@ class FlexMlsApiService
             return 0;
         }
 
-        // Do not short-circuit when some FlexMLS images already exist: a prior run may have
-        // only imported one photo (API hiccup, fallback path, etc.). Per-photo deduplication
-        // below handles skipping rows that are already stored.
+        // PhotosCount is refreshed on every listing import, so when we already hold that
+        // many photos locally there is nothing new to fetch. This keeps the daily sync
+        // cheap instead of re-pulling every photo of every listing on each run.
+        $expectedCount = (int) ($apiData['StandardFields']['PhotosCount'] ?? 0);
+        $storedCount = $property->images()->where('api_source', 'flexmls')->count();
+
+        if (!$updateExisting && $expectedCount > 0 && $storedCount >= $expectedCount) {
+            return 0;
+        }
 
         // Get ALL photos using the dedicated photos API endpoint (paginated)
         $photos = $this->getListingPhotos($listingKey);
@@ -307,32 +313,33 @@ class FlexMlsApiService
 
         $importedCount = 0;
         $sortOrder = $property->images()->max('sort_order') ?? 0;
-        
+
+        // One lookup for the whole listing instead of a query per photo
+        $storedPhotoIds = PropertyImage::where('property_id', $property->id)
+            ->whereNotNull('api_photo_id')
+            ->pluck('id', 'api_photo_id');
+
         foreach ($photos as $index => $photo) {
             $sortOrder++;
-            
+
             try {
-                $photoData = $this->transformPhotoData($photo, $property, $sortOrder);
-                
-                // Check if photo already exists
-                $existingPhoto = PropertyImage::where('property_id', $property->id)
-                    ->where('api_photo_id', $photo['Id'])
-                    ->first();
-                
-                if ($existingPhoto && !$updateExisting) {
+                $photoId = $photo['Id'] ?? null;
+                $storedId = $photoId ? ($storedPhotoIds[$photoId] ?? null) : null;
+
+                if ($storedId !== null && !$updateExisting) {
                     continue;
                 }
-                
-                if ($existingPhoto) {
-                    $existingPhoto->update($photoData);
-                    Log::info('Updated existing photo', ['property_id' => $property->id, 'photo_id' => $photo['Id']]);
+
+                $photoData = $this->transformPhotoData($photo, $property, $sortOrder);
+
+                if ($storedId !== null) {
+                    PropertyImage::find($storedId)?->update($photoData);
                 } else {
                     PropertyImage::create($photoData);
-                    Log::info('Imported new photo', ['property_id' => $property->id, 'photo_id' => $photo['Id']]);
                 }
-                
+
                 $importedCount++;
-                
+
             } catch (\Exception $e) {
                 Log::error('Failed to import photo', [
                     'property_id' => $property->id,
